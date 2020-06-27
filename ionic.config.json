@@ -1,0 +1,7 @@
+{
+  "name": "hexchat",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
