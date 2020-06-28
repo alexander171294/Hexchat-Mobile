@@ -1,0 +1,16 @@
+<ion-item *ngIf="server" [routerLink]="'/server/1'" [detail]="false">
+  <div slot="start" class="dot" [class.dot-unread]="server.connected"></div>
+  <ion-label class="ion-text-wrap">
+    <h2>
+      {{server.name}}
+      <span class="date">
+        <ion-note>{{server.created}}</ion-note>
+        <ion-icon name="chevron-forward" size="small" *ngIf="isIos()"></ion-icon>
+      </span>
+    </h2>
+    <h3>{{server.server}}</h3>
+    <p>
+      {{server.submsg}}
+    </p>
+  </ion-label>
+  </ion-item>

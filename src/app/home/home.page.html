@@ -1,8 +1,21 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
+    <!-- <ion-buttons slot="secondary">
+      <ion-button (click)="connect()">
+        <ion-icon name="construct-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="send()">
+        <ion-icon name="send-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons> -->
     <ion-title>
-      Inbox
+      Network List - Hexchat
     </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="config()">
+        <ion-icon name="cog-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -10,16 +23,15 @@
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
-  
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">
-        Inbox
-      </ion-title>
-    </ion-toolbar>
-  </ion-header>
-  
+
   <ion-list>
-    <app-message *ngFor="let message of getMessages()" [message]="message"></app-message>
+    <app-servercard *ngFor="let server of servers" [server]="server"></app-servercard>
   </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="showAddServer()">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

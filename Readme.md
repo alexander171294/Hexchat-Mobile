@@ -8,3 +8,5 @@ and clone:
 
 https://github.com/kiwiirc/webircgateway
 
+correr el gateway:
+./webircgateway --config=config.conf
