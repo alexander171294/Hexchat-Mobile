@@ -10,41 +10,43 @@
 </ion-header>
 
 <ion-content>
-  <ion-item>
-    <ion-label position="floating">Nombre</ion-label>
-    <ion-input></ion-input>
-  </ion-item>
-  <ion-item>
-    <ion-label position="floating">Servidores</ion-label>
-    <ion-input></ion-input>
-  </ion-item>
-  <ion-item>
-    <ion-label>Conectar al iniciar</ion-label>
-    <ion-toggle [(ngModel)]="pepperoni"></ion-toggle>
-  </ion-item>
-  <ion-item>
-    <ion-label position="floating">Apodo</ion-label>
-    <ion-input></ion-input>
-  </ion-item>
-  <ion-item>
-    <ion-label position="floating">Apodo secundario</ion-label>
-    <ion-input></ion-input>
-  </ion-item>
-  <ion-item>
-    <ion-label position="floating">Nombre de usuario</ion-label>
-    <ion-input></ion-input>
-  </ion-item>
-  <ion-item>
-    <ion-label>Método de inicio</ion-label>
-    <ion-select placeholder="Select One">
-      <ion-select-option value="r">Default</ion-select-option>
-      <ion-select-option value="f">Server password (/PASS Password)</ion-select-option>
-      <ion-select-option value="m">Nickserv (/nickserv password)</ion-select-option>
-    </ion-select>
-  </ion-item>
-  <ion-item>
-    <ion-label position="floating">Contraseña</ion-label>
-    <ion-input type="password"></ion-input>
-  </ion-item>
-  <ion-button expand="block">Agregar</ion-button>
+  <ion-list lines="none">
+    <ion-item>
+      <ion-label position="floating">Nombre</ion-label>
+      <ion-input name="sname"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Servidores</ion-label>
+      <ion-input name="server"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Conectar al iniciar</ion-label>
+      <ion-toggle [(ngModel)]="pepperoni"></ion-toggle>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Apodo</ion-label>
+      <ion-input></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Apodo secundario</ion-label>
+      <ion-input></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Nombre de usuario</ion-label>
+      <ion-input name="uname"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Método de inicio</ion-label>
+      <ion-select placeholder="Select One">
+        <ion-select-option value="r">Default</ion-select-option>
+        <ion-select-option value="f">Server password (/PASS Password)</ion-select-option>
+        <ion-select-option value="m">Nickserv (/nickserv password)</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input name="pconn" type="password"></ion-input>
+    </ion-item>
+    <ion-button expand="full">Agregar</ion-button>
+  </ion-list>
 </ion-content>

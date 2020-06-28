@@ -75,11 +75,10 @@
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
 
-}
-
-.darkMode {
-
+  // dark patch
   --ion-color-primary: #ed8e20;
+  --ion-color-secondary: #4bc1c6;
+  --ion-color-tertiary: #e9266c;
   --ion-color-primary-rgb: 237, 142, 32;
   --ion-color-primary-contrast: #272821;
   --ion-color-primary-contrast-rgb: 39, 40, 33;
@@ -89,7 +88,10 @@
   --ion-text-color-rgb: 205, 205, 192;
   --ion-toolbar-background: #4e3c21;
 
-  // #dad572
+  ion-alert {
+    --background: var(--ion-background-color);
+  }
+
 }
 
 // @media (prefers-color-scheme: dark) {

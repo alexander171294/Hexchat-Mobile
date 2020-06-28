@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MenuController, NavController, IonRouterOutlet } from '@ionic/angular';
 
 @Component({
   selector: 'app-chat',
@@ -7,9 +8,22 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ChatPage implements OnInit {
 
-  constructor() { }
+  constructor(private menu: MenuController, private routerOutlet: IonRouterOutlet) { }
 
   ngOnInit() {
+    this.routerOutlet.swipeGesture = false;
+  }
+
+  channels() {
+    this.menu.open('channels');
+  }
+
+  users() {
+    this.menu.open('users');
+  }
+
+  ionViewWillLeave() {
+    this.routerOutlet.swipeGesture = true;
   }
 
 }

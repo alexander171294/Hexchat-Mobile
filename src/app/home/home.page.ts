@@ -15,7 +15,7 @@ export class HomePage {
 
   constructor(private wsSrv: WebsocketService, public modalController: ModalController) {
     const server = new ServerData();
-    server.connected = false;
+    server.connected = true;
     server.created = 'now';
     server.name = 'Hira Network';
     server.server = 'irc.hira.li:6667';
