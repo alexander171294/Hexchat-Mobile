@@ -41,6 +41,13 @@ export class HomePage {
     this.wsSrv.connect('ws://irc.network.org:8091/webirc/websocket/').subscribe(r => {
       console.log('Event received ', r);
     })
+
+    /**
+ENCODING CP1252
+HOST irc.hira.li:6667
+user websocket * * :WebSocket User
+nick websocket_842
+     */
   }
 
   send() {
