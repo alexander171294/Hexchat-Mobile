@@ -2,6 +2,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { ServerData, ServersService } from './servers.service';
 import { WebSocketHDLR } from './websocket';
 import { environment } from 'src/environments/environment';
+import { Server } from 'http';
 
 @Injectable({
   providedIn: 'root'
@@ -45,9 +46,14 @@ export class ConnectionHandlerService {
   private onComplete(server: ServerData) {
     this.websockets[server.id].ws.send('ENCODING UTF-8');
     this.websockets[server.id].ws.send('HOST ' + server.server);
-    this.websockets[server.id].ws.send('user websocket * * :WebSocket User');
+    this.websockets[server.id].ws.send('user ' + server.username + ' * * :WebSocket User');
     this.websockets[server.id].ws.send('nick ' + server.apodo);
+    this.websockets[server.id].serverNick = server.apodo;
     // this.websockets[server.id].send('/join #underc0de ');
+  }
+
+  public send(id: string, command: string) {
+    this.websockets[id].ws.send(command);
   }
 
   public getWSData(id: string) {
@@ -56,6 +62,10 @@ export class ConnectionHandlerService {
 
   public onMessageReceived(): EventEmitter<RawMessageEvent> {
     return this.messageEvent;
+  }
+
+  public getServerNick(id: string): string {
+    return this.websockets[id].serverNick;
   }
 
 }
@@ -73,6 +83,7 @@ export class WSData {
   public ws: WebSocketHDLR;
   public rawStream: string[] = [];
   public dividedStream: ChatStreams;
+  public serverNick: string;
 }
 
 export interface IWebsockets {

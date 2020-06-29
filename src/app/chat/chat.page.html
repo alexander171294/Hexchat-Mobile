@@ -3,7 +3,8 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>#underc0de</ion-title>
+    <ion-title *ngIf="filter">#underc0de</ion-title>
+    <ion-title *ngIf="!filter">Global</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="channels()">
         <ion-icon name="chatbubbles-outline"></ion-icon>
@@ -49,7 +50,7 @@
 
 <ion-content id="chat-content">
   <div class="chatBox" style="width: 100%;height: 90%;">
-    <ul>
+    <ul #listChat>
       <!-- <li class="me">
         <span class="hora">[23:24:58]</span>
         <div class="nick">Harko</div>
@@ -61,13 +62,14 @@
         Alberto09 se ha marchado (Quit: Connection closed)
       </li> -->
       <li *ngFor="let message of messages" [class.special]="message.special">
+        <span class="hora" *ngIf="message.time">{{message.time}}</span>
         <div class="nick">{{message.nick}}</div>
         {{message.message}}
       </li>
     </ul>
   </div>
   <div class="inputBox">
-    <ion-searchbar searchIcon="send-outline" placeholder="send message or command"></ion-searchbar>
+    <ion-searchbar searchIcon="send-outline" placeholder="send message or command" inputmode="" [(ngModel)]="command" (keypress)="sendCommand($event)"></ion-searchbar>
   </div>
 
 </ion-content>

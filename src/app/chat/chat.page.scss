@@ -1,12 +1,22 @@
 ul {
+    // list-style: none;
+    // margin: 0px;
+    // padding: 0px;
+    // height: 100%;
+    // overflow-y: auto;
+    // display: flex;
+    // flex-direction: column;
+    // justify-content: flex-end;
     list-style: none;
     margin: 0px;
     padding: 0px;
     height: 100%;
     overflow-y: auto;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+    flex-flow: column nowrap;
+    > :first-child {
+        margin-top: auto !important;
+    }
     li {
         font-family: monospace;
         .hora {
