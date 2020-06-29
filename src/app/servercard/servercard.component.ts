@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ServerData } from '../services/servers.service';
-import { NavController } from '@ionic/angular';
+import { NavController, LoadingController, ToastController } from '@ionic/angular';
+import { ConnectionHandlerService } from '../services/connection-handler.service';
 
 @Component({
   selector: 'app-servercard',
@@ -11,11 +12,14 @@ export class ServerCardComponent implements OnInit {
 
   @Input() server: ServerData;
   @Output() editRequested: EventEmitter<void> = new EventEmitter<void>();
-  private timeoutRef: NodeJS.Timeout;
+  private timeoutRef: any;
   private static readonly pressToEdit = 500;
   private holdFrom: number;
 
-  constructor(private navCtrl: NavController) { }
+  constructor(private navCtrl: NavController,
+              private loadingController: LoadingController,
+              private connections: ConnectionHandlerService,
+              private toastCtrl: ToastController) { }
 
   ngOnInit() {}
 
@@ -38,9 +42,32 @@ export class ServerCardComponent implements OnInit {
     if(evt.timeStamp - this.holdFrom > ServerCardComponent.pressToEdit) {
       evt.preventDefault();
     } else {
-      this.navCtrl.navigateForward('/chat');
+      this.presentLoading().then(d => {
+        this.connections.connect(this.server).then(r => {
+          this.loadingController.dismiss();
+          this.navCtrl.navigateForward('/chat/' + this.server.id);
+        }).catch(r => {
+          this.loadingController.dismiss();
+          // mostrar toast:
+          this.toastCtrl.create({
+            message: 'Error connecting.',
+            duration: 1000
+          }).then(toast => {
+            toast.present();
+          });
+        })
+      });
+      // this.navCtrl.navigateForward('/chat');
       clearTimeout(this.timeoutRef);
     }
     this.holdFrom = 0;
+  }
+
+  async presentLoading() {
+    const loading = await this.loadingController.create({
+      cssClass: 'my-custom-class',
+      message: 'Connecting...'
+    });
+    await loading.present();
   }
 }

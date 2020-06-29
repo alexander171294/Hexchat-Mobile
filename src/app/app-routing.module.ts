@@ -16,7 +16,7 @@ const routes: Routes = [
     loadChildren: () => import('./add-server/add-server.module').then( m => m.AddServerPageModule)
   },
   {
-    path: 'chat',
+    path: 'chat/:id',
     loadChildren: () => import('./chat/chat.module').then( m => m.ChatPageModule)
   },
 ];

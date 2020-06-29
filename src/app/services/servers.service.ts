@@ -43,6 +43,11 @@ export class ServersService {
   public onServerChange(): EventEmitter<ServerData> {
     return this.serversUpdateEvent;
   }
+
+  public updateStatusConnection(id: string, status: boolean) {
+    this.servers[id].connected = status;
+    this.serversUpdateEvent.emit(this.servers[id]);
+  }
 }
 
 export interface ServerDataHash {
