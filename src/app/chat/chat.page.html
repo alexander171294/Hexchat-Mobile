@@ -50,65 +50,18 @@
 <ion-content id="chat-content">
   <div class="chatBox" style="width: 100%;height: 90%;">
     <ul>
-      <li class="me">
+      <!-- <li class="me">
         <span class="hora">[23:24:58]</span>
         <div class="nick">Harko</div>
         no soy tan rápido
-      </li>
-      <li class="me">
-        <span class="hora">[23:24:58]</span>
-        <div class="nick">Harko</div>
-        programando
-      </li>
-      <li class="me">
-        <span class="hora">[23:24:58]</span>
-        <div class="nick">Harko</div>
-        jajaja
-      </li>
-      <li>
-        <span class="hora">[23:24:58]</span>
-        <div class="nick">Twilight`Sparkle</div>
-        jajaja
-      </li>
-      <li>
-        <span class="hora">[23:24:58]</span>
-        <div class="nick">Twilight`Sparkle</div>
-        probando 123
       </li>
       <li class="special">
         <span class="hora">[23:24:58]</span>
         <div class="nick">*</div>
         Alberto09 se ha marchado (Quit: Connection closed)
-      </li>
-      <li class="me">
-        <span class="hora">[23:24:58]</span>
-        <div class="nick me">Harko</div>
-        no soy tan rápido
-      </li>
-      <li class="me">
-        <span class="hora">[23:24:58]</span>
-        <div class="nick">Harko</div>
-        programando
-      </li>
-      <li class="me">
-        <span class="hora">[23:24:58]</span>
-        <div class="nick">Harko</div>
-        jajaja
-      </li>
-      <li>
-        <span class="hora">[23:24:58]</span>
-        <div class="nick">Twilight`Sparkle</div>
-        jajaja
-      </li>
-      <li>
-        <span class="hora">[23:24:58]</span>
-        <div class="nick">Twilight`Sparkle</div>
-        probando 123
-      </li>
-      <li>
-        <span class="hora">[23:24:58]</span>
-        <div class="nick">Gabriela-</div>
-        quiere decir que las playas del Mediterráneo estarían infectadas en el agua
+      </li> -->
+      <li *ngFor="let message of messages">
+        {{message.message}}
       </li>
     </ul>
   </div>

@@ -8,6 +8,7 @@ ul {
     flex-direction: column;
     justify-content: flex-end;
     li {
+        font-family: monospace;
         .hora {
             opacity: 0.5;
         }
