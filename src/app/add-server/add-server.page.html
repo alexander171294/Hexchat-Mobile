@@ -1,6 +1,7 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Add new server</ion-title>
+    <ion-title *ngIf="serverID">Edit server</ion-title>
+    <ion-title *ngIf="!serverID">Add new server</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="cancel()">
         Cancel
@@ -13,40 +14,50 @@
   <ion-list lines="none">
     <ion-item>
       <ion-label position="floating">Nombre</ion-label>
-      <ion-input name="sname"></ion-input>
+      <ion-input name="sname" [(ngModel)]="serverData.name"></ion-input>
     </ion-item>
     <ion-item>
       <ion-label position="floating">Servidores</ion-label>
-      <ion-input name="server"></ion-input>
+      <ion-input name="server" [(ngModel)]="serverData.server" placeholder="irc.server.com:6667 or irc.server.com:+6667 with TLS"></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>Conectar al iniciar</ion-label>
-      <ion-toggle [(ngModel)]="pepperoni"></ion-toggle>
+      <ion-toggle [(ngModel)]="serverData.autoConnect"></ion-toggle>
     </ion-item>
     <ion-item>
       <ion-label position="floating">Apodo</ion-label>
-      <ion-input></ion-input>
+      <ion-input [(ngModel)]="serverData.apodo"></ion-input>
     </ion-item>
     <ion-item>
       <ion-label position="floating">Apodo secundario</ion-label>
-      <ion-input></ion-input>
+      <ion-input [(ngModel)]="serverData.apodoSecundario"></ion-input>
     </ion-item>
     <ion-item>
       <ion-label position="floating">Nombre de usuario</ion-label>
-      <ion-input name="uname"></ion-input>
+      <ion-input [(ngModel)]="serverData.username" name="uname"></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>Método de inicio</ion-label>
-      <ion-select placeholder="Select One">
-        <ion-select-option value="r">Default</ion-select-option>
-        <ion-select-option value="f">Server password (/PASS Password)</ion-select-option>
-        <ion-select-option value="m">Nickserv (/nickserv password)</ion-select-option>
+      <ion-select placeholder="Seleccionar" [(ngModel)]="serverData.method">
+        <ion-select-option value="default">Default</ion-select-option>
+        <ion-select-option value="spassword">Server password (/PASS Password)</ion-select-option>
+        <ion-select-option value="nickserv">Nickserv (/nickserv password)</ion-select-option>
       </ion-select>
     </ion-item>
     <ion-item>
       <ion-label position="floating">Contraseña</ion-label>
-      <ion-input name="pconn" type="password"></ion-input>
+      <ion-input name="pconn" type="password" [(ngModel)]="serverData.password"></ion-input>
     </ion-item>
-    <ion-button expand="full">Agregar</ion-button>
+    <ion-button expand="full" (click)="save()" *ngIf="!serverID">Agregar</ion-button>
+    <div class="editBlock" *ngIf="serverID">
+      <ion-button (click)="delete()">
+        <ion-icon slot="start" name="trash-outline"></ion-icon>
+        Eliminar
+      </ion-button>
+      <ion-button (click)="save()">
+        <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+        Guardar
+      </ion-button>
+    </div>
   </ion-list>
 </ion-content>

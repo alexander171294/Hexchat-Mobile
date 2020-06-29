@@ -90,6 +90,9 @@
 
   ion-alert {
     --background: var(--ion-background-color);
+    alert-radio-label {
+      color: var(--ion-text-color);
+    }
   }
 
 }

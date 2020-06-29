@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { WebsocketService } from '../services/websocket.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, GestureController, Gesture } from '@ionic/angular';
 import { AddServerPage } from '../add-server/add-server.page';
-import { ServerData } from '../services/serverData';
+import { ServerData, ServersService } from '../services/servers.service';
 
 @Component({
   selector: 'app-home',
@@ -11,16 +11,22 @@ import { ServerData } from '../services/serverData';
 })
 export class HomePage {
   
-  public servers: ServerData[] = [];
+  public servers: ServerData[];
 
-  constructor(private wsSrv: WebsocketService, public modalController: ModalController) {
-    const server = new ServerData();
-    server.connected = true;
-    server.created = 'now';
-    server.name = 'Hira Network';
-    server.server = 'irc.hira.li:6667';
-    server.submsg = 'Autojoin: #underc0de';
-    this.servers.push(server);
+  constructor(private wsSrv: WebsocketService, 
+              private modalController: ModalController, 
+              private srvSrv: ServersService) {
+    this.refreshServers();
+    this.srvSrv.onServerChange().subscribe(srv => {
+      this.refreshServers();
+    })
+  }
+
+  refreshServers() {
+    this.servers = [];
+    Object.entries(this.srvSrv.getServers()).forEach((srv) => {
+      this.servers.push(srv[1]);
+    });
   }
 
   refresh(ev) {
@@ -29,12 +35,19 @@ export class HomePage {
     }, 3000);
   }
 
-  async showAddServer() {
+  async showAddServer(serverId?: string) {
     const modal = await this.modalController.create({
       component: AddServerPage,
+      componentProps: {
+        serverID: serverId
+      },
       cssClass: 'my-custom-class'
     });
     return await modal.present();
+  }
+
+  edit(server: ServerData) {
+    this.showAddServer(server.id);
   }
 
   connect() {

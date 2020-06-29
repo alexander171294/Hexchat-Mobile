@@ -1,4 +1,4 @@
-<ion-item *ngIf="server" [routerLink]="'/chat'" [detail]="false">
+<ion-item *ngIf="server" [detail]="false" (touchstart)="onElementHold($event)" (touchend)="onElementRelease($event)">
   <div slot="start" class="dot" [class.dot-unread]="server.connected"></div>
   <ion-label class="ion-text-wrap">
     <h2>
@@ -10,7 +10,10 @@
     </h2>
     <h3>{{server.server}}</h3>
     <p>
-      {{server.submsg}}
+      @{{server.apodo}} 
+      <span *ngIf="server.submsg">
+        {{server.submsg}}
+      </span>
     </p>
   </ion-label>
-  </ion-item>
+</ion-item>

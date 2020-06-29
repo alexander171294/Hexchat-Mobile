@@ -25,7 +25,7 @@
   </ion-refresher>
 
   <ion-list>
-    <app-servercard *ngFor="let server of servers" [server]="server"></app-servercard>
+    <app-servercard *ngFor="let server of servers" [server]="server" (editRequested)="edit(server)"></app-servercard>
   </ion-list>
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
