@@ -60,7 +60,8 @@
         <div class="nick">*</div>
         Alberto09 se ha marchado (Quit: Connection closed)
       </li> -->
-      <li *ngFor="let message of messages">
+      <li *ngFor="let message of messages" [class.special]="message.special">
+        <div class="nick">{{message.nick}}</div>
         {{message.message}}
       </li>
     </ul>

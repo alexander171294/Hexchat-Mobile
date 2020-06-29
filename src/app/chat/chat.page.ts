@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MenuController, NavController, IonRouterOutlet } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { ConnectionHandlerService, WSData, RawMessageEvent } from '../services/connection-handler.service';
+import { IRCParser } from '../utils/IrcParser';
 
 @Component({
   selector: 'app-chat',
@@ -26,15 +27,11 @@ export class ChatPage implements OnInit {
     this.messages = [];
     if(wsd) {
       wsd.rawStream.forEach((data) => {
-        const msg = new Message();
-        msg.message = data;
-        this.messages.push(msg);
+        this.addMessage(data);
       });
       this.connHdlr.onMessageReceived().subscribe((rwMsg: RawMessageEvent) => {
         if(this.serverID == rwMsg.serverID) {
-          const msg = new Message();
-          msg.message = rwMsg.message;
-          this.messages.push(msg);
+          this.addMessage(rwMsg.message);
         }
       });
     } else {
@@ -54,6 +51,22 @@ export class ChatPage implements OnInit {
     this.routerOutlet.swipeGesture = true;
   }
 
+  addMessage(rawMSG: string) {
+    
+    IRCParser.parseMessage(rawMSG).forEach(parsedMessage => {
+      const msg = new Message();
+      if(parsedMessage.code != 'PRIVMSG') {
+        msg.special = true;
+        msg.message = parsedMessage.message;
+        msg.nick = '*';
+      } else {
+        msg.message = parsedMessage.message;
+        msg.nick = parsedMessage.simplyTarget;
+      }
+      this.messages.push(msg);
+    });
+  }
+  
 }
 
 export class Message {
