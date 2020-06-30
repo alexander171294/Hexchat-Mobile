@@ -2,7 +2,7 @@ export class IRCParser {
     public static parseMessage(message: string): IRCMessage[] {
         const out = [];
         message.split('\r\n').forEach(msgLine => {
-            const r = /:([^:]+):*(.*)/.exec(msgLine);
+            const r = /:([^:]+):?(.*)/.exec(msgLine);
             const TAG = r[1];
             const MSG = r[2];
             const partials = TAG.split(' ');
@@ -30,6 +30,12 @@ export class IRCParser {
         });
         return out;
     }
+
+    public static getChannelOfUsers(message: string) {
+        return /=([^:]+):/.exec(message)[1].trim();
+    }
+
+
 }
 
 export class IRCMessage {

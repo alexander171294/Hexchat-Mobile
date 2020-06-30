@@ -62,6 +62,7 @@ export class ChatPage implements OnInit {
   }
 
   changeFilter(channel: string) {
+    this.menu.close('channels');
     this.filter = channel;
     this.processMessages();
     this.isChannel = channel[0] == '#';
@@ -71,6 +72,7 @@ export class ChatPage implements OnInit {
   }
 
   queryUser(user: string) {
+    this.menu.close('users');
     let queryFor = user;
     queryFor = queryFor[0] === '@' ? queryFor.slice(1) : queryFor;
     this.connHdlr.addChannelMSG(this.serverID, '@' + queryFor);

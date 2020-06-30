@@ -39,7 +39,7 @@ export class ConnectionHandlerService {
       const msg = new IRCMessage();
       let channel = '';
       if(parsedMessage.code == '353') {
-        const channel = /=([^:]+):/.exec(message)[1].trim();
+        const channel = IRCParser.getChannelOfUsers(message);
         const users = parsedMessage.message.trim().split(' ');
         this.websockets[server.id].users[channel] = users;
       } else if(parsedMessage.code != 'PRIVMSG') {
