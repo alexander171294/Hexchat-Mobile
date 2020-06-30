@@ -9,7 +9,7 @@
       <ion-button (click)="channels()">
         <ion-icon name="chatbubbles-outline"></ion-icon>
       </ion-button>
-      <ion-button (click)="users()" *ngIf="filter">
+      <ion-button (click)="users()" *ngIf="isChannel">
         <ion-icon name="people-circle-outline"></ion-icon>
       </ion-button>
     </ion-buttons>

@@ -18,6 +18,7 @@ export class ChatPage implements OnInit {
   public command: string;
   public channelsMenu: string[] = [];
   private wsd: WSData;
+  public isChannel: boolean;
 
   // public chats: ChatsStream;
 
@@ -62,6 +63,7 @@ export class ChatPage implements OnInit {
   changeFilter(channel: string) {
     this.filter = channel;
     this.processMessages();
+    this.isChannel = channel[0] == '#';
   }
 
   processMessages() {
