@@ -2,7 +2,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { ServerData, ServersService } from './servers.service';
 import { WebSocketHDLR } from './websocket';
 import { environment } from 'src/environments/environment';
-import { Server } from 'http';
+import { IRCParser } from '../utils/IrcParser';
 
 @Injectable({
   providedIn: 'root'
@@ -34,8 +34,26 @@ export class ConnectionHandlerService {
 
   private onGetMessage(message: string, server: ServerData) {
     console.log(message);
-    this.websockets[server.id].rawStream.push(message);
-    this.messageEvent.emit(new RawMessageEvent(server.id, message));
+    const now = new Date();
+    IRCParser.parseMessage(message).forEach(parsedMessage => {
+      const msg = new IRCMessage();
+      if(parsedMessage.code != 'PRIVMSG') {
+        msg.special = true;
+        msg.message = parsedMessage.message;
+        msg.nick = '*';
+      } else {
+        msg.message = parsedMessage.message;
+        msg.nick = parsedMessage.simplyOrigin;
+        msg.time = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+        if (parsedMessage.target === this.websockets[server.id].serverNick) { // privado hacia mi
+          // TODO: guardar en un chat stream y luego filtrarlo por seleccion
+        } else { // de un canal
+
+        }
+      }
+      this.websockets[server.id].rawStream.push(msg);
+      this.messageEvent.emit(new RawMessageEvent(server.id, msg));
+    });
   }
 
   private onErrorOccoured(err: any, server: ServerData) {
@@ -72,8 +90,8 @@ export class ConnectionHandlerService {
 
 export class RawMessageEvent {
   public serverID: string;
-  public message: string;
-  constructor(serverID: string, message: string) {
+  public message: IRCMessage;
+  constructor(serverID: string, message: IRCMessage) {
     this.serverID = serverID;
     this.message = message;
   }
@@ -81,7 +99,7 @@ export class RawMessageEvent {
 
 export class WSData {
   public ws: WebSocketHDLR;
-  public rawStream: string[] = [];
+  public rawStream: IRCMessage[] = [];
   public dividedStream: ChatStreams;
   public serverNick: string;
 }
@@ -91,5 +109,13 @@ export interface IWebsockets {
 }
 
 export interface ChatStreams {
-  [key: string]: string[];
+  [key: string]: IRCMessage[];
+}
+
+export class IRCMessage {
+  public me: boolean;
+  public special: boolean;
+  public nick: string;
+  public message: string;
+  public time: string;
 }

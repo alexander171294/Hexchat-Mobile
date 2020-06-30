@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, MissingTranslationStrategy } from '@angular/core';
 import { MenuController, NavController, IonRouterOutlet } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { ConnectionHandlerService, WSData, RawMessageEvent } from '../services/connection-handler.service';
+import { ConnectionHandlerService, WSData, RawMessageEvent, IRCMessage } from '../services/connection-handler.service';
 import { IRCParser } from '../utils/IrcParser';
 
 @Component({
@@ -11,7 +11,7 @@ import { IRCParser } from '../utils/IrcParser';
 })
 export class ChatPage implements OnInit {
 
-  public messages: Message[];
+  public messages: IRCMessage[];
   private serverID: string;
   public filter: string;
   public command: string;
@@ -57,32 +57,33 @@ export class ChatPage implements OnInit {
     this.routerOutlet.swipeGesture = true;
   }
 
-  addMessage(rawMSG: string) {
-    const now = new Date();
-    IRCParser.parseMessage(rawMSG).forEach(parsedMessage => {
-      const msg = new Message();
-      if(parsedMessage.code != 'PRIVMSG') {
-        msg.special = true;
-        msg.message = parsedMessage.message;
-        msg.nick = '*';
-      } else {
-        msg.message = parsedMessage.message;
-        msg.nick = parsedMessage.simplyOrigin;
-        msg.time = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
-        if (parsedMessage.target === this.connHdlr.getServerNick(this.serverID)) { // privado hacia mi
-          // TODO: guardar en un chat stream y luego filtrarlo por seleccion
-        } else { // de un canal
+  addMessage(rawMSG: IRCMessage) {
+    // const now = new Date();
+    // IRCParser.parseMessage(rawMSG).forEach(parsedMessage => {
+    //   const msg = new IRCMessage();
+    //   if(parsedMessage.code != 'PRIVMSG') {
+    //     msg.special = true;
+    //     msg.message = parsedMessage.message;
+    //     msg.nick = '*';
+    //   } else {
+    //     msg.message = parsedMessage.message;
+    //     msg.nick = parsedMessage.simplyOrigin;
+    //     msg.time = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+    //     if (parsedMessage.target === this.connHdlr.getServerNick(this.serverID)) { // privado hacia mi
+    //       // TODO: guardar en un chat stream y luego filtrarlo por seleccion
+    //     } else { // de un canal
 
-        }
-      }
-      this.messages.push(msg);
-    });
+    //     }
+    //   }
+    //   this.messages.push(msg);
+    // });
     // setTimeout(() => {
     //   console.log(this.listChat);
     //   if(this.listChat) {
     //     this.listChat.nativeElement.scrollTo(this.listChat.nativeElement.scrollHeight);
     //   }
     // }, 10);
+    this.messages.push(rawMSG);
   }
 
   sendCommand(evt) {
@@ -98,10 +99,3 @@ export class ChatPage implements OnInit {
 
 }
 
-export class Message {
-  public me: boolean;
-  public special: boolean;
-  public nick: string;
-  public message: string;
-  public time: string;
-}
