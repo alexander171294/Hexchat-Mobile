@@ -49,7 +49,6 @@ export class ChatPage implements OnInit {
           }
         }
         this.channelsMenu = this.connHdlr.getChannels(this.serverID);
-        console.log('Getting channels: ', this.connHdlr.getChannels(this.serverID));
       });
     } else {
       this.navCtrl.navigateBack('/home');
@@ -124,15 +123,23 @@ export class ChatPage implements OnInit {
         if(this.command.toLowerCase().indexOf('/query ') === 0 ) {
           let queryFor = this.command.slice(7);
           queryFor = queryFor[0] === '@' ? queryFor.slice(1) : queryFor;
-          this.connHdlr.addUser(this.serverID, '@' + queryFor);
+          this.connHdlr.addChannelMSG(this.serverID, '@' + queryFor);
           this.channelsMenu = this.connHdlr.getChannels(this.serverID);
+          this.changeFilter('@' + queryFor);
+        } else if(this.command.toLowerCase().indexOf('/join ') === 0 ) {
+          let channel = this.command.slice(6);
+          console.log('JOIN channel?', channel);
+          this.connHdlr.addChannelMSG(this.serverID, channel);
+          this.channelsMenu = this.connHdlr.getChannels(this.serverID);
+          this.changeFilter(channel);
+          this.connHdlr.send(this.serverID, 'JOIN ' + channel);
         } else {
           this.connHdlr.send(this.serverID, this.command.slice(1));
         }
       } else {
         if(this.filter) {
           const target = this.filter[0] === '@' ? this.filter.slice(1) : this.filter;
-          this.connHdlr.send(this.serverID, 'PRIVMSG :' + target + ' ' + this.command);
+          this.connHdlr.send(this.serverID, 'PRIVMSG ' + target + ' :' + this.command);
           // :Harko!~Harkolandia@harkonidaz.irc.tandilserver.com PRIVMSG Alex172 :probanding
           this.connHdlr.registerMessageSended(this.serverID, this.command, this.filter);
         }
@@ -143,3 +150,7 @@ export class ChatPage implements OnInit {
 
 }
 
+// 332 titulo del canal
+// 353 lista de usuarios.
+// JOIN usuario se une?
+// LEAVE usuario se va?

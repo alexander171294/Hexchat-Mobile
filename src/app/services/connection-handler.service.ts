@@ -51,14 +51,14 @@ export class ConnectionHandlerService {
           channel = '@'+parsedMessage.simplyOrigin;
           if(!this.websockets[server.id].dividedStream[channel]) {
             this.websockets[server.id].dividedStream[channel] = [];
-            this.websockets[server.id].privMsgChannels.push(channel);
+            this.addChannelMSG(server.id, channel);
           }
           this.websockets[server.id].dividedStream[channel].push(msg);
         } else { // de un canal
           channel = parsedMessage.target;
           if(!this.websockets[server.id].dividedStream[channel]) {
             this.websockets[server.id].dividedStream[channel] = [];
-            this.websockets[server.id].privMsgChannels.push(channel);
+            this.addChannelMSG(server.id, channel);
           }
           this.websockets[server.id].dividedStream[channel].push(msg);
         }
@@ -84,7 +84,7 @@ export class ConnectionHandlerService {
     this.messageEvent.emit(new RawMessageEvent(id, msg, channel));
   }
 
-  public addUser(id: string, user: string) {
+  public addChannelMSG(id: string, user: string) {
     if(this.websockets[id].privMsgChannels.findIndex(channel => channel === user) >= 0) {
       return;
     }
