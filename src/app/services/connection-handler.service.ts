@@ -38,7 +38,11 @@ export class ConnectionHandlerService {
     IRCParser.parseMessage(message).forEach(parsedMessage => {
       const msg = new IRCMessage();
       let channel = '';
-      if(parsedMessage.code != 'PRIVMSG') {
+      if(parsedMessage.code == '353') {
+        const channel = /=([^:]+):/.exec(message)[1].trim();
+        const users = parsedMessage.message.trim().split(' ');
+        this.websockets[server.id].users[channel] = users;
+      } else if(parsedMessage.code != 'PRIVMSG') {
         msg.special = true;
         msg.message = parsedMessage.message;
         msg.nick = '*';
@@ -93,6 +97,10 @@ export class ConnectionHandlerService {
 
   public getChannels(id: string): string[] {
     return this.websockets[id].privMsgChannels;
+  }
+
+  public getUsers(id: string, channel: string): string[] {
+    return this.websockets[id].users[channel];
   }
 
   private onErrorOccoured(err: any, server: ServerData) {
@@ -150,9 +158,15 @@ export class WSData {
   public ws: WebSocketHDLR;
   public rawStream: IRCMessage[] = [];
   public dividedStream: ChatStreams = {};
+  public users: UsersList = {};
   public privMsgChannels: string[] = [];
   public server: ServerData;
 }
+
+export interface UsersList {
+  [key: string]: string[];
+}
+
 
 export interface IWebsockets {
   [key: string]: WSData;

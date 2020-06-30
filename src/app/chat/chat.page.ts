@@ -17,6 +17,7 @@ export class ChatPage implements OnInit {
   public filter: string;
   public command: string;
   public channelsMenu: string[] = [];
+  public usersMenu: string[] = [];
   private wsd: WSData;
   public isChannel: boolean;
 
@@ -64,6 +65,17 @@ export class ChatPage implements OnInit {
     this.filter = channel;
     this.processMessages();
     this.isChannel = channel[0] == '#';
+    if(this.isChannel) {
+      this.usersMenu = this.connHdlr.getUsers(this.serverID, this.filter);
+    }
+  }
+
+  queryUser(user: string) {
+    let queryFor = user;
+    queryFor = queryFor[0] === '@' ? queryFor.slice(1) : queryFor;
+    this.connHdlr.addChannelMSG(this.serverID, '@' + queryFor);
+    this.channelsMenu = this.connHdlr.getChannels(this.serverID);
+    this.changeFilter('@' + queryFor);
   }
 
   processMessages() {
@@ -82,6 +94,7 @@ export class ChatPage implements OnInit {
   }
 
   users() {
+    this.usersMenu = this.connHdlr.getUsers(this.serverID, this.filter);
     this.menu.open('users');
   }
 
