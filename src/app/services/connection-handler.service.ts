@@ -44,22 +44,36 @@ export class ConnectionHandlerService {
         this.websockets[server.id].users[channel] = users;
       } else if(parsedMessage.code == 'PART') {
         //:Harko!~Harkolandia@harkonidaz.irc.tandilserver.com PART #SniferL4bs :"Leaving"
-        let index = this.websockets[server.id].users[parsedMessage.target].findIndex(user => user === parsedMessage.simplyOrigin);
-        delete this.websockets[server.id].users[parsedMessage.target][index];
+        channel = parsedMessage.target;
+        if(!this.websockets[server.id].users[channel]) {
+          this.websockets[server.id].users[channel] = [];
+        }
+        let index = this.websockets[server.id].users[channel].findIndex(user => user === parsedMessage.simplyOrigin);
+        delete this.websockets[server.id].users[channel][index];
         msg.special = true;
         msg.message = parsedMessage.simplyOrigin + ' leaving (' + parsedMessage.message + ')';
         msg.nick = '*';
-        msg.channel = parsedMessage.target;
-        this.websockets[server.id].dividedStream[msg.channel].push(msg);
+        msg.channel = channel;
+        if(!this.websockets[server.id].dividedStream[channel]) {
+          this.websockets[server.id].dividedStream[channel] = [];
+        }
+        this.websockets[server.id].dividedStream[channel].push(msg);
       } else if(parsedMessage.code == 'JOIN') {
         //:Harko!~Harkolandia@harkonidaz.irc.tandilserver.com JOIN :#SniferL4bs
         console.log('Joining ', parsedMessage);
-        this.websockets[server.id].users[parsedMessage.message].push(parsedMessage.simplyOrigin);
+        channel = parsedMessage.message;
+        if(!this.websockets[server.id].users[channel]) {
+          this.websockets[server.id].users[channel] = [];
+        }
+        this.websockets[server.id].users[channel].push(parsedMessage.simplyOrigin);
         msg.special = true;
         msg.message = parsedMessage.origin.nick + ' ('+parsedMessage.origin.identitity+'@'+parsedMessage.origin.server+') Joining';
         msg.nick = '*';
-        msg.channel = parsedMessage.message;
-        this.websockets[server.id].dividedStream[msg.channel].push(msg);
+        msg.channel = channel;
+        if(!this.websockets[server.id].dividedStream[channel]) {
+          this.websockets[server.id].dividedStream[channel] = [];
+        }
+        this.websockets[server.id].dividedStream[channel].push(msg);
       } else if(parsedMessage.code != 'PRIVMSG') {
         msg.special = true;
         msg.message = parsedMessage.message;
