@@ -37,6 +37,7 @@ export class ConnectionHandlerService {
     const now = new Date();
     IRCParser.parseMessage(message).forEach(parsedMessage => {
       const msg = new IRCMessage();
+      let channel = '';
       if(parsedMessage.code != 'PRIVMSG') {
         msg.special = true;
         msg.message = parsedMessage.message;
@@ -45,15 +46,53 @@ export class ConnectionHandlerService {
         msg.message = parsedMessage.message;
         msg.nick = parsedMessage.simplyOrigin;
         msg.time = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
-        if (parsedMessage.target === this.websockets[server.id].serverNick) { // privado hacia mi
+        if (parsedMessage.target === this.websockets[server.id].server.apodo) { // privado hacia mi
           // TODO: guardar en un chat stream y luego filtrarlo por seleccion
+          channel = '@'+parsedMessage.simplyOrigin;
+          if(!this.websockets[server.id].dividedStream[channel]) {
+            this.websockets[server.id].dividedStream[channel] = [];
+            this.websockets[server.id].privMsgChannels.push(channel);
+          }
+          this.websockets[server.id].dividedStream[channel].push(msg);
         } else { // de un canal
-
+          channel = parsedMessage.target;
+          if(!this.websockets[server.id].dividedStream[channel]) {
+            this.websockets[server.id].dividedStream[channel] = [];
+            this.websockets[server.id].privMsgChannels.push(channel);
+          }
+          this.websockets[server.id].dividedStream[channel].push(msg);
         }
+        msg.channel = channel;
       }
       this.websockets[server.id].rawStream.push(msg);
-      this.messageEvent.emit(new RawMessageEvent(server.id, msg));
+      this.messageEvent.emit(new RawMessageEvent(server.id, msg, channel));
     });
+  }
+
+  public registerMessageSended(id: string, message: string, channel: string) {
+    const now = new Date();
+    const msg = new IRCMessage();
+    msg.message = message;
+    msg.nick = this.websockets[id].server.apodo;
+    msg.time = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+    msg.me = true;
+    msg.channel = channel;
+    if(!this.websockets[id].dividedStream[channel]) {
+      this.websockets[id].dividedStream[channel] = [];
+    }
+    this.websockets[id].dividedStream[channel].push(msg);
+    this.messageEvent.emit(new RawMessageEvent(id, msg, channel));
+  }
+
+  public addUser(id: string, user: string) {
+    if(this.websockets[id].privMsgChannels.findIndex(channel => channel === user) >= 0) {
+      return;
+    }
+    this.websockets[id].privMsgChannels.push(user);
+  }
+
+  public getChannels(id: string): string[] {
+    return this.websockets[id].privMsgChannels;
   }
 
   private onErrorOccoured(err: any, server: ServerData) {
@@ -66,7 +105,7 @@ export class ConnectionHandlerService {
     this.websockets[server.id].ws.send('HOST ' + server.server);
     this.websockets[server.id].ws.send('user ' + server.username + ' * * :WebSocket User');
     this.websockets[server.id].ws.send('nick ' + server.apodo);
-    this.websockets[server.id].serverNick = server.apodo;
+    this.websockets[server.id].server = server;
     // this.websockets[server.id].send('/join #underc0de ');
   }
 
@@ -78,12 +117,20 @@ export class ConnectionHandlerService {
     return this.websockets[id];
   }
 
+  public getServerName(id: string) {
+    return this.websockets[id]?.server.name;
+  }
+
   public onMessageReceived(): EventEmitter<RawMessageEvent> {
     return this.messageEvent;
   }
 
   public getServerNick(id: string): string {
-    return this.websockets[id].serverNick;
+    return this.websockets[id].server.apodo;
+  }
+
+  public getServer(id: string): ServerData {
+    return this.websockets[id].server;
   }
 
 }
@@ -91,17 +138,20 @@ export class ConnectionHandlerService {
 export class RawMessageEvent {
   public serverID: string;
   public message: IRCMessage;
-  constructor(serverID: string, message: IRCMessage) {
+  public channel: string;
+  constructor(serverID: string, message: IRCMessage, channel: string) {
     this.serverID = serverID;
     this.message = message;
+    this.channel = channel;
   }
 }
 
 export class WSData {
   public ws: WebSocketHDLR;
   public rawStream: IRCMessage[] = [];
-  public dividedStream: ChatStreams;
-  public serverNick: string;
+  public dividedStream: ChatStreams = {};
+  public privMsgChannels: string[] = [];
+  public server: ServerData;
 }
 
 export interface IWebsockets {
@@ -118,4 +168,5 @@ export class IRCMessage {
   public nick: string;
   public message: string;
   public time: string;
+  public channel: string;
 }

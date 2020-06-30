@@ -13,8 +13,11 @@ export class ChatPage implements OnInit {
 
   public messages: IRCMessage[];
   private serverID: string;
+  public serverName: string;
   public filter: string;
   public command: string;
+  public channelsMenu: string[] = [];
+  private wsd: WSData;
 
   // public chats: ChatsStream;
 
@@ -29,16 +32,24 @@ export class ChatPage implements OnInit {
   ngOnInit() {
     this.routerOutlet.swipeGesture = false;
     this.serverID = this.route.snapshot.paramMap.get('id');
-    const wsd: WSData = this.connHdlr.getWSData(this.serverID);
+    this.wsd = this.connHdlr.getWSData(this.serverID);
+    this.serverName = this.connHdlr.getServerName(this.serverID);
     this.messages = [];
-    if(wsd) {
-      wsd.rawStream.forEach((data) => {
-        this.addMessage(data);
-      });
+    if(this.wsd) {
+      this.processMessages();
+      this.channelsMenu = this.connHdlr.getChannels(this.serverID);
       this.connHdlr.onMessageReceived().subscribe((rwMsg: RawMessageEvent) => {
         if(this.serverID == rwMsg.serverID) {
-          this.addMessage(rwMsg.message);
+          if(this.filter) {
+            if(this.filter == rwMsg.channel) {
+              this.addMessage(rwMsg.message);
+            }
+          } else {
+            this.addMessage(rwMsg.message);
+          }
         }
+        this.channelsMenu = this.connHdlr.getChannels(this.serverID);
+        console.log('Getting channels: ', this.connHdlr.getChannels(this.serverID));
       });
     } else {
       this.navCtrl.navigateBack('/home');
@@ -49,12 +60,32 @@ export class ChatPage implements OnInit {
     this.menu.open('channels');
   }
 
+  changeFilter(channel: string) {
+    this.filter = channel;
+    this.processMessages();
+  }
+
+  processMessages() {
+    this.messages = [];
+    if(this.filter) {
+      if(this.wsd.dividedStream[this.filter]) {
+        this.wsd.dividedStream[this.filter].forEach((data) => {
+          this.addMessage(data);
+        });
+      }
+    } else {
+      this.wsd.rawStream.forEach((data) => {
+        this.addMessage(data);
+      });
+    }
+  }
+
   users() {
     this.menu.open('users');
   }
 
   ionViewWillLeave() {
-    this.routerOutlet.swipeGesture = true;
+    // this.routerOutlet.swipeGesture = true;
   }
 
   addMessage(rawMSG: IRCMessage) {
@@ -87,13 +118,26 @@ export class ChatPage implements OnInit {
   }
 
   sendCommand(evt) {
-    if(evt.keyCode == 13) {
+    this.command = evt.target.value;
+    if(evt.keyCode == 13 && this.command) {
       if(this.command[0] == '/') {
-        this.connHdlr.send(this.serverID, this.command.slice(1));
+        if(this.command.toLowerCase().indexOf('/query ') === 0 ) {
+          let queryFor = this.command.slice(7);
+          queryFor = queryFor[0] === '@' ? queryFor.slice(1) : queryFor;
+          this.connHdlr.addUser(this.serverID, '@' + queryFor);
+          this.channelsMenu = this.connHdlr.getChannels(this.serverID);
+        } else {
+          this.connHdlr.send(this.serverID, this.command.slice(1));
+        }
       } else {
-
+        if(this.filter) {
+          const target = this.filter[0] === '@' ? this.filter.slice(1) : this.filter;
+          this.connHdlr.send(this.serverID, 'PRIVMSG :' + target + ' ' + this.command);
+          // :Harko!~Harkolandia@harkonidaz.irc.tandilserver.com PRIVMSG Alex172 :probanding
+          this.connHdlr.registerMessageSended(this.serverID, this.command, this.filter);
+        }
       }
-      this.command = '';
+      evt.target.value = '';
     }
   }
 
