@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Settings</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">
+        Save
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list lines="none">
+    <ion-item>
+      <ion-label>Theme</ion-label>
+      <ion-select placeholder="Seleccionar" [(ngModel)]="theme" (ionChange)="changedTheme()">
+        <ion-select-option value="default">Default</ion-select-option>
+        <ion-select-option value="monokai">Monokai</ion-select-option>
+        <ion-select-option value="aubergine">Aubergine</ion-select-option>
+        <ion-select-option value="black">Black</ion-select-option>
+        <ion-select-option value="blues">Blues</ion-select-option>
+        <ion-select-option value="paper">Paper</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+</ion-content>

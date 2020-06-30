@@ -75,18 +75,17 @@
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
 
-  // dark patch
-  --ion-color-primary: #ed8e20;
-  --ion-color-secondary: #4bc1c6;
-  --ion-color-tertiary: #e9266c;
-  --ion-color-primary-rgb: 237, 142, 32;
-  --ion-color-primary-contrast: #272821;
-  --ion-color-primary-contrast-rgb: 39, 40, 33;
-
-  --ion-background-color: #272821;
-  --ion-text-color: #cdcdc0;
-  --ion-text-color-rgb: 205, 205, 192;
-  --ion-toolbar-background: #4e3c21;
+  // Fedora Default
+  --ion-color-primary: #255183;
+  --ion-color-secondary: #267a7c;
+  --ion-color-tertiary: #9566d8;
+  --ion-color-primary-rgb: 37, 81, 131;
+  --ion-color-primary-contrast: #9fbedb;
+  --ion-color-primary-contrast-rgb: 159, 190, 219;
+  --ion-background-color: #ede8ec;
+  --ion-text-color: #142b4b;
+  --ion-text-color-rgb: 20, 43, 75;
+  --ion-toolbar-background: #d1cdcc;
 
   ion-alert {
     --background: var(--ion-background-color);
@@ -96,6 +95,70 @@
   }
 
 }
+
+.theme {
+  &.monokai {
+    --ion-color-primary: #ed8e20;
+    --ion-color-secondary: #4bc1c6;
+    --ion-color-tertiary: #e9266c;
+    --ion-color-primary-rgb: 237, 142, 32;
+    --ion-color-primary-contrast: #272821;
+    --ion-color-primary-contrast-rgb: 39, 40, 33;
+    --ion-background-color: #272821;
+    --ion-text-color: #cdcdc0;
+    --ion-text-color-rgb: 205, 205, 192;
+    --ion-toolbar-background: #4e3c21;
+  }
+  &.aubergine {
+    --ion-color-primary: #ef9e9d;
+    --ion-color-secondary: #da8bfc;
+    --ion-color-tertiary: #f1a899;
+    --ion-color-primary-rgb: 239, 158, 157;
+    --ion-color-primary-contrast: #2f0416;
+    --ion-color-primary-contrast-rgb: 236, 226, 235;
+    --ion-background-color: #2f0416;
+    --ion-text-color: #f875df;
+    --ion-text-color-rgb: 248, 117, 223;
+    --ion-toolbar-background: #755766;
+  }
+  &.black {
+    --ion-color-primary: #aa0000;
+    --ion-color-secondary: #2700cc;
+    --ion-color-tertiary: #ba00bb;
+    --ion-color-primary-rgb: 237, 142, 32;
+    --ion-color-primary-contrast: #000000;
+    --ion-color-primary-contrast-rgb: 39, 40, 33;
+    --ion-background-color: #000000;
+    --ion-text-color: #cecece;
+    --ion-text-color-rgb: 205, 205, 192;
+    --ion-toolbar-background: #333333;
+  }
+  &.blues {
+    --ion-color-primary: #afb7c2;
+    --ion-color-secondary: #8397d6;
+    --ion-color-tertiary: #7bb7d1;
+    --ion-color-primary-rgb: 237, 142, 32;
+    --ion-color-primary-contrast: #132e6c;
+    --ion-color-primary-contrast-rgb: 39, 40, 33;
+    --ion-background-color: #132e6c;
+    --ion-text-color: #babfbb;
+    --ion-text-color-rgb: 205, 205, 192;
+    --ion-toolbar-background: #597be4;
+  }
+  &.paper{
+    --ion-color-primary: #966500;
+    --ion-color-secondary: #f43202;
+    --ion-color-tertiary: #2f69ca;
+    --ion-color-primary-rgb: 239, 158, 157;
+    --ion-color-primary-contrast: #fad99a;
+    --ion-color-primary-contrast-rgb: 250, 217, 154;
+    --ion-background-color: #f4eee2;
+    --ion-text-color: #796147;
+    --ion-text-color-rgb: 121, 97, 71;
+    --ion-toolbar-background: #d8bb79;
+  }
+}
+
 
 // @media (prefers-color-scheme: dark) {
 //   /*

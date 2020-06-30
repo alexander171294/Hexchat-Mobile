@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { AddServerPage } from '../add-server/add-server.page';
 import { ServerData, ServersService } from '../services/servers.service';
+import { SettingsPage } from '../settings/settings.page';
 
 @Component({
   selector: 'app-home',
@@ -43,6 +44,17 @@ export class HomePage {
     });
     return await modal.present();
   }
+
+  async showSettings() {
+    const modal = await this.modalController.create({
+      component: SettingsPage,
+      componentProps: {
+      },
+      cssClass: 'my-custom-class'
+    });
+    return await modal.present();
+  }
+
 
   edit(server: ServerData) {
     this.showAddServer(server.id);

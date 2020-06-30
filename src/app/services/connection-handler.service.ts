@@ -3,6 +3,7 @@ import { ServerData, ServersService } from './servers.service';
 import { WebSocketHDLR } from './websocket';
 import { environment } from 'src/environments/environment';
 import { IRCParser } from '../utils/IrcParser';
+import { parse } from 'path';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +35,12 @@ export class ConnectionHandlerService {
 
   private onGetMessage(message: string, server: ServerData) {
     console.log(message);
+    if(message.indexOf('PING') === 0) {
+      const pingResp = message.slice(5);
+      console.log('Sending pong');
+      this.send(server.id,'PONG ' + pingResp);
+      return;
+    }
     const now = new Date();
     IRCParser.parseMessage(message).forEach(parsedMessage => {
       const msg = new IRCMessage();
