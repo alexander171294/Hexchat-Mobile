@@ -42,6 +42,24 @@ export class ConnectionHandlerService {
         const channel = IRCParser.getChannelOfUsers(message);
         const users = parsedMessage.message.trim().split(' ');
         this.websockets[server.id].users[channel] = users;
+      } else if(parsedMessage.code == 'PART') {
+        //:Harko!~Harkolandia@harkonidaz.irc.tandilserver.com PART #SniferL4bs :"Leaving"
+        let index = this.websockets[server.id].users[parsedMessage.target].findIndex(user => user === parsedMessage.simplyOrigin);
+        delete this.websockets[server.id].users[parsedMessage.target][index];
+        msg.special = true;
+        msg.message = parsedMessage.simplyOrigin + ' leaving (' + parsedMessage.message + ')';
+        msg.nick = '*';
+        msg.channel = parsedMessage.target;
+        this.websockets[server.id].dividedStream[msg.channel].push(msg);
+      } else if(parsedMessage.code == 'JOIN') {
+        //:Harko!~Harkolandia@harkonidaz.irc.tandilserver.com JOIN :#SniferL4bs
+        console.log('Joining ', parsedMessage);
+        this.websockets[server.id].users[parsedMessage.message].push(parsedMessage.simplyOrigin);
+        msg.special = true;
+        msg.message = parsedMessage.origin.nick + ' ('+parsedMessage.origin.identitity+'@'+parsedMessage.origin.server+') Joining';
+        msg.nick = '*';
+        msg.channel = parsedMessage.message;
+        this.websockets[server.id].dividedStream[msg.channel].push(msg);
       } else if(parsedMessage.code != 'PRIVMSG') {
         msg.special = true;
         msg.message = parsedMessage.message;
