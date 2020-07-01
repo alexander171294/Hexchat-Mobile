@@ -25,7 +25,7 @@ export class ConnectionHandlerService {
         this.websockets[server.id].ws = new WebSocketHDLR();
         this.websockets[server.id].ws.connect(environment.gateway).subscribe(
           msg => { this.onGetMessage(msg, server); res() },
-          err => { this.onErrorOccoured(err, server); rej() },
+          err => { this.onErrorOccoured(err, server); rej(err) },
           () => {  }
         );
         this.onComplete(server);
@@ -161,6 +161,9 @@ export class ConnectionHandlerService {
 
   private loadLog(serverID: string) {
     if(localStorage.getItem('dividedStream')) {
+      if(!localStorage.getItem('dividedStream')[serverID]) {
+        return;
+      }
       const dividedStream = JSON.parse(localStorage.getItem('dividedStream'))[serverID].dividedStream;
       Object.entries(dividedStream).forEach(channChats => {
         const channel = channChats[0];

@@ -47,6 +47,7 @@ export class ServerCardComponent implements OnInit {
           this.loadingController.dismiss();
           this.navCtrl.navigateForward('/chat/' + this.server.id);
         }).catch(r => {
+          console.error(r);
           this.loadingController.dismiss();
           // mostrar toast:
           this.toastCtrl.create({
