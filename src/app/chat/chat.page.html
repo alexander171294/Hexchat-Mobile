@@ -57,7 +57,7 @@
         Alberto09 se ha marchado (Quit: Connection closed)
       </li> -->
       
-      <li *ngFor="let message of messages" [class.special]="message.special" [class.me]="message.me">
+      <li *ngFor="let message of messages" [class.special]="message.special" [class.me]="message.me" [class.log]="message.fromLog">
         <span class="hora" *ngIf="message.time">{{message.time}}</span>
         <div class="nick">{{message.nick}}</div>
         {{message.message}}

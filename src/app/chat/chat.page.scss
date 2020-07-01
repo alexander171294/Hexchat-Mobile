@@ -49,5 +49,8 @@ ul {
                 color: var(--ion-color-primary);
             }
         }
+        &.log {
+            opacity: 0.5;
+        }
     }
 }

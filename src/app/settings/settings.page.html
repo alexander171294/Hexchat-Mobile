@@ -12,7 +12,7 @@
 <ion-content>
   <ion-list lines="none">
     <ion-item>
-      <ion-label>Theme</ion-label>
+      <ion-label>Cambiar theme:</ion-label>
       <ion-select placeholder="Seleccionar" [(ngModel)]="theme" (ionChange)="changedTheme()">
         <ion-select-option value="default">Default</ion-select-option>
         <ion-select-option value="monokai">Monokai</ion-select-option>
@@ -23,4 +23,13 @@
       </ion-select>
     </ion-item>
   </ion-list>
+  <ion-item>
+    <ion-label position="floating">Tamaño del log</ion-label>
+    <ion-input [value]="logSize" (change)="chgLogSize($event)"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-button expand="block" (click)="clearLogs()">Borrar logs</ion-button>
+    <ion-button expand="block" (click)="deleteServers()">Borrar servidores</ion-button>
+  </ion-item>
+  
 </ion-content>

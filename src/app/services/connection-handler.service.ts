@@ -21,6 +21,7 @@ export class ConnectionHandlerService {
       } else {
         this.srvSrv.updateStatusConnection(server.id, true);
         this.websockets[server.id] = new WSData();
+        this.loadLog(server.id);
         this.websockets[server.id].ws = new WebSocketHDLR();
         this.websockets[server.id].ws.connect(environment.gateway).subscribe(
           msg => { this.onGetMessage(msg, server); res() },
@@ -88,6 +89,7 @@ export class ConnectionHandlerService {
         msg.message = parsedMessage.message;
         msg.nick = parsedMessage.simplyOrigin;
         msg.time = this.getTime();
+        msg.date = this.getDateStr();
         if (parsedMessage.target === this.websockets[server.id].server.apodo) { // privado hacia mi
           // TODO: guardar en un chat stream y luego filtrarlo por seleccion
           channel = '@'+parsedMessage.simplyOrigin;
@@ -113,6 +115,44 @@ export class ConnectionHandlerService {
     } else {
       this.websockets[serverID].rawStream.push(message);
     }
+    this.saveLog();
+  }
+
+  private saveLog() {
+    const logsOut = {};
+    Object.entries(this.websockets).forEach(elem => {
+      const serverID = elem[0];
+      const servData = elem[1];
+      // logs[serverID] = servData.dividedStream;
+      const chatsOuts = {};
+      Object.entries(servData.dividedStream).forEach(channChats => {
+        const channel = channChats[0];
+        const messages = channChats[1];
+        chatsOuts[channel] = messages.slice(environment.saveLastMessages < 0 ? environment.saveLastMessages : (-1 * environment.saveLastMessages));
+      })
+      logsOut[serverID] = {
+        dividedStream: chatsOuts
+      };
+    });
+    localStorage.setItem('dividedStream', JSON.stringify(logsOut));
+  }
+
+  private loadLog(serverID: string) {
+    if(localStorage.getItem('dividedStream')) {
+      const dividedStream = JSON.parse(localStorage.getItem('dividedStream'))[serverID].dividedStream;
+      Object.entries(dividedStream).forEach(channChats => {
+        const channel = channChats[0];
+        const messages: any = channChats[1];
+        const processedMessages = [];
+        messages.forEach(msg => {
+          msg.time = msg.time;
+          msg.fromLog = true;
+          processedMessages.push(msg);
+        });
+        dividedStream[channel] = processedMessages;
+      });
+      this.websockets[serverID].dividedStream = dividedStream;
+    }
   }
 
   private getTime(): string {
@@ -137,6 +177,7 @@ export class ConnectionHandlerService {
     msg.message = message;
     msg.nick = this.websockets[id].server.apodo;
     msg.time = this.getTime();
+    msg.date = this.getDateStr();
     msg.me = true;
     msg.channel = channel;
     this.addMessage(id, msg, channel);
@@ -237,5 +278,7 @@ export class IRCMessage {
   public nick: string;
   public message: string;
   public time: string;
+  public date: string;
+  public fromLog: boolean;
   public channel: string;
 }

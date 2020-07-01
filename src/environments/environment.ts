@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  gateway: 'ws://irc.network.org:8091/webirc/websocket/'
+  gateway: 'ws://irc.network.org:8091/webirc/websocket/',
+  saveLastMessages: localStorage.getItem('logSize') ? parseInt(localStorage.getItem('logSize')) : 50 // -50 last 50, https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Array/slice
 };
 
 /*
