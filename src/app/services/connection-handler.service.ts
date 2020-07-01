@@ -56,7 +56,7 @@ export class ConnectionHandlerService {
           this.send(server.id, 'PRIVMSG nickserv identify ' + this.websockets[server.id].server.password);
         }
         if(this.websockets[server.id].server.method === 'spassword') {
-          
+          this.send(server.id, 'PASS ' + this.websockets[server.id].server.password);
         }
         // autojoin
         if(this.websockets[server.id].server.autojoin) {
@@ -225,7 +225,7 @@ export class ConnectionHandlerService {
   private onComplete(server: ServerData) {
     this.websockets[server.id].ws.send('ENCODING UTF-8');
     this.websockets[server.id].ws.send('HOST ' + server.server);
-    this.websockets[server.id].ws.send('user ' + server.username + ' * * :WebSocket User');
+    this.websockets[server.id].ws.send('user ' + server.username + ' * * :HexchatForAndroid');
     this.websockets[server.id].ws.send('nick ' + server.apodo);
     this.websockets[server.id].server = server;
     // this.websockets[server.id].send('/join #underc0de ');
