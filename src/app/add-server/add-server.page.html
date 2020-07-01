@@ -21,9 +21,13 @@
       <ion-input name="server" [(ngModel)]="serverData.server" placeholder="irc.server.com:6667 or irc.server.com:+6667 with TLS"></ion-input>
     </ion-item>
     <ion-item>
+      <ion-label position="floating">Unir a servidores (separado por espacios)</ion-label>
+      <ion-input name="server" [(ngModel)]="serverData.autojoin" placeholder="#underc0de #SniferL4bs"></ion-input>
+    </ion-item>
+    <!-- <ion-item>
       <ion-label>Conectar al iniciar</ion-label>
       <ion-toggle [(ngModel)]="serverData.autoConnect"></ion-toggle>
-    </ion-item>
+    </ion-item> -->
     <ion-item>
       <ion-label position="floating">Apodo</ion-label>
       <ion-input [(ngModel)]="serverData.apodo"></ion-input>

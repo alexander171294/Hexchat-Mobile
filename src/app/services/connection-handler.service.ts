@@ -3,6 +3,7 @@ import { ServerData, ServersService } from './servers.service';
 import { WebSocketHDLR } from './websocket';
 import { environment } from 'src/environments/environment';
 import { IRCParser } from '../utils/IrcParser';
+import { parse } from 'path';
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +50,23 @@ export class ConnectionHandlerService {
         const channel = IRCParser.getChannelOfUsers(message);
         const users = parsedMessage.message.trim().split(' ');
         this.websockets[server.id].users[channel] = users;
+      } else if(parsedMessage.code == '396') { // displayed host
+        // autologin
+        if(this.websockets[server.id].server.method === 'nickserv') {
+          this.send(server.id, 'PRIVMSG nickserv identify ' + this.websockets[server.id].server.password);
+        }
+        if(this.websockets[server.id].server.method === 'spassword') {
+          
+        }
+        // autojoin
+        if(this.websockets[server.id].server.autojoin) {
+          const channels = this.websockets[server.id].server.autojoin.split(' ');
+          channels.forEach(channel => {
+            console.log('Joining to ' + channel);
+            this.send(server.id, 'JOIN '+channel);
+            this.addChannelMSG(server.id, channel);
+          });
+        }
       } else if(parsedMessage.code == '322') {
         // real channel list.
         // const channel = IRCParser.getChannelOfUsers(message);

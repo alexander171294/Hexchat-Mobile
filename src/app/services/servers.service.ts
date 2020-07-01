@@ -67,4 +67,5 @@ export class ServerData {
   public autoConnect: boolean;
   public connected: boolean;
   public submsg: string;
+  public autojoin: string;
 }
