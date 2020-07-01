@@ -12,6 +12,9 @@ export class ServersService {
   constructor() {
     const servers = JSON.parse(localStorage.getItem('servers'));
     if(servers) {
+      Object.entries(servers).forEach(srv => {
+        (srv[1] as any).connected = false;
+      });
       this.servers = servers;
     }
   }
