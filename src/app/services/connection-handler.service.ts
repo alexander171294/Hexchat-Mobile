@@ -46,26 +46,31 @@ export class ConnectionHandlerService {
     IRCParser.parseMessage(message).forEach(parsedMessage => {
       const msg = new IRCMessage();
       let channel = '';
+      // 464 bad bouncer connection?
       if(parsedMessage.code == '353') {
         const channel = IRCParser.getChannelOfUsers(message);
         const users = parsedMessage.message.trim().split(' ');
         this.websockets[server.id].users[channel] = users;
+      } else if (parsedMessage.code == '433') { // nick already in use
+        this.send(server.id, 'nick ' + server.apodoSecundario);
       } else if(parsedMessage.code == '396') { // displayed host
         // autologin
-        if(this.websockets[server.id].server.method === 'nickserv') {
-          this.send(server.id, 'PRIVMSG nickserv identify ' + this.websockets[server.id].server.password);
-        }
-        if(this.websockets[server.id].server.method === 'spassword') {
-          this.send(server.id, 'PASS ' + this.websockets[server.id].server.password);
+        if(server.method === 'nickserv') {
+          this.send(server.id, 'PRIVMSG nickserv identify ' + server.password);
         }
         // autojoin
-        if(this.websockets[server.id].server.autojoin) {
-          const channels = this.websockets[server.id].server.autojoin.split(' ');
+        if(server.autojoin) {
+          const channels = server.autojoin.split(' ');
           channels.forEach(channel => {
             console.log('Joining to ' + channel);
             this.send(server.id, 'JOIN '+channel);
             this.addChannelMSG(server.id, channel);
           });
+        }
+      } else if(parsedMessage.code == '464') {
+        if(server.method === 'spassword') {
+          this.send(server.id, 'PASS ' + server.username + ':' + server.password);
+          this.send(server.id, 'nick ' + server.apodo);
         }
       } else if(parsedMessage.code == '322') {
         // real channel list.
