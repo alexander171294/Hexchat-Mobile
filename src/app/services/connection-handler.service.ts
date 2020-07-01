@@ -3,7 +3,6 @@ import { ServerData, ServersService } from './servers.service';
 import { WebSocketHDLR } from './websocket';
 import { environment } from 'src/environments/environment';
 import { IRCParser } from '../utils/IrcParser';
-import { parse } from 'path';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +40,7 @@ export class ConnectionHandlerService {
       this.send(server.id,'PONG ' + pingResp);
       return;
     }
-    const now = new Date();
+    
     IRCParser.parseMessage(message).forEach(parsedMessage => {
       const msg = new IRCMessage();
       let channel = '';
@@ -49,6 +48,11 @@ export class ConnectionHandlerService {
         const channel = IRCParser.getChannelOfUsers(message);
         const users = parsedMessage.message.trim().split(' ');
         this.websockets[server.id].users[channel] = users;
+      } else if(parsedMessage.code == '322') {
+        // real channel list.
+        // const channel = IRCParser.getChannelOfUsers(message);
+        // const users = parsedMessage.message.trim().split(' ');
+        // this.websockets[server.id].users[channel] = users;
       } else if(parsedMessage.code == 'PART') {
         //:Harko!~Harkolandia@harkonidaz.irc.tandilserver.com PART #SniferL4bs :"Leaving"
         channel = parsedMessage.target;
@@ -61,10 +65,7 @@ export class ConnectionHandlerService {
         msg.message = parsedMessage.simplyOrigin + ' leaving (' + parsedMessage.message + ')';
         msg.nick = '*';
         msg.channel = channel;
-        if(!this.websockets[server.id].dividedStream[channel]) {
-          this.websockets[server.id].dividedStream[channel] = [];
-        }
-        this.websockets[server.id].dividedStream[channel].push(msg);
+        this.addMessage(server.id, msg, channel);
       } else if(parsedMessage.code == 'JOIN') {
         //:Harko!~Harkolandia@harkonidaz.irc.tandilserver.com JOIN :#SniferL4bs
         console.log('Joining ', parsedMessage);
@@ -77,53 +78,68 @@ export class ConnectionHandlerService {
         msg.message = parsedMessage.origin.nick + ' ('+parsedMessage.origin.identitity+'@'+parsedMessage.origin.server+') Joining';
         msg.nick = '*';
         msg.channel = channel;
-        if(!this.websockets[server.id].dividedStream[channel]) {
-          this.websockets[server.id].dividedStream[channel] = [];
-        }
-        this.websockets[server.id].dividedStream[channel].push(msg);
+        this.addMessage(server.id, msg, channel);
       } else if(parsedMessage.code != 'PRIVMSG') {
         msg.special = true;
         msg.message = parsedMessage.message;
         msg.nick = '*';
+        // msg.time = this.getTime();
       } else {
         msg.message = parsedMessage.message;
         msg.nick = parsedMessage.simplyOrigin;
-        msg.time = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+        msg.time = this.getTime();
         if (parsedMessage.target === this.websockets[server.id].server.apodo) { // privado hacia mi
           // TODO: guardar en un chat stream y luego filtrarlo por seleccion
           channel = '@'+parsedMessage.simplyOrigin;
-          if(!this.websockets[server.id].dividedStream[channel]) {
-            this.websockets[server.id].dividedStream[channel] = [];
-            this.addChannelMSG(server.id, channel);
-          }
-          this.websockets[server.id].dividedStream[channel].push(msg);
+          this.addMessage(server.id, msg, channel);
         } else { // de un canal
           channel = parsedMessage.target;
-          if(!this.websockets[server.id].dividedStream[channel]) {
-            this.websockets[server.id].dividedStream[channel] = [];
-            this.addChannelMSG(server.id, channel);
-          }
-          this.websockets[server.id].dividedStream[channel].push(msg);
+          this.addMessage(server.id, msg, channel);
         }
         msg.channel = channel;
       }
-      this.websockets[server.id].rawStream.push(msg);
+      this.addMessage(server.id, msg);
       this.messageEvent.emit(new RawMessageEvent(server.id, msg, channel));
     });
   }
 
-  public registerMessageSended(id: string, message: string, channel: string) {
+  private addMessage(serverID: string, message: IRCMessage, channel?: string): void {
+    if(channel) {
+      if(!this.websockets[serverID].dividedStream[channel]) {
+        this.websockets[serverID].dividedStream[channel] = [];
+        this.addChannelMSG(serverID, channel);
+      }
+      this.websockets[serverID].dividedStream[channel].push(message);
+    } else {
+      this.websockets[serverID].rawStream.push(message);
+    }
+  }
+
+  private getTime(): string {
     const now = new Date();
+    const hours = now.getHours() < 10 ? '0'+now.getHours() : now.getHours();
+    const min = now.getMinutes() < 10 ? '0'+now.getMinutes() : now.getMinutes();
+    const second = now.getSeconds() < 10 ? '0'+now.getSeconds() : now.getSeconds();
+    return hours + ':' + min + ':' + second;
+  }
+
+  private getDateStr(): string {
+    const now = new Date();
+    const month = (now.getMonth()+1);
+    const monthStr = month < 10 ? '0' + month : month;
+    const day = now.getDate();
+    const dayStr = day < 10 ? '0' + day : day; 
+    return dayStr+'/'+monthStr+'/'+now.getFullYear();
+  }
+
+  public registerMessageSended(id: string, message: string, channel: string) {
     const msg = new IRCMessage();
     msg.message = message;
     msg.nick = this.websockets[id].server.apodo;
-    msg.time = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+    msg.time = this.getTime();
     msg.me = true;
     msg.channel = channel;
-    if(!this.websockets[id].dividedStream[channel]) {
-      this.websockets[id].dividedStream[channel] = [];
-    }
-    this.websockets[id].dividedStream[channel].push(msg);
+    this.addMessage(id, msg, channel);
     this.messageEvent.emit(new RawMessageEvent(id, msg, channel));
   }
 

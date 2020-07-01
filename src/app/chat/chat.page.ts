@@ -21,10 +21,6 @@ export class ChatPage implements OnInit {
   private wsd: WSData;
   public isChannel: boolean;
 
-  // public chats: ChatsStream;
-
-  @ViewChild('listChat') listChat: ElementRef;
-
   constructor(private menu: MenuController,
               private routerOutlet: IonRouterOutlet,
               private route: ActivatedRoute,
@@ -105,31 +101,7 @@ export class ChatPage implements OnInit {
   }
 
   addMessage(rawMSG: IRCMessage) {
-    // const now = new Date();
-    // IRCParser.parseMessage(rawMSG).forEach(parsedMessage => {
-    //   const msg = new IRCMessage();
-    //   if(parsedMessage.code != 'PRIVMSG') {
-    //     msg.special = true;
-    //     msg.message = parsedMessage.message;
-    //     msg.nick = '*';
-    //   } else {
-    //     msg.message = parsedMessage.message;
-    //     msg.nick = parsedMessage.simplyOrigin;
-    //     msg.time = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
-    //     if (parsedMessage.target === this.connHdlr.getServerNick(this.serverID)) { // privado hacia mi
-    //       // TODO: guardar en un chat stream y luego filtrarlo por seleccion
-    //     } else { // de un canal
-
-    //     }
-    //   }
-    //   this.messages.push(msg);
-    // });
-    // setTimeout(() => {
-    //   console.log(this.listChat);
-    //   if(this.listChat) {
-    //     this.listChat.nativeElement.scrollTo(this.listChat.nativeElement.scrollHeight);
-    //   }
-    // }, 10);
+    this.scrollDown();
     this.messages.push(rawMSG);
   }
 
@@ -163,6 +135,13 @@ export class ChatPage implements OnInit {
       }
       evt.target.value = '';
     }
+  }
+
+  scrollDown() {
+    setTimeout(() => {
+      const elem = document.getElementById('chatList');
+      elem.scrollTo({top: elem.scrollHeight})
+    }, 100);
   }
 
 }
