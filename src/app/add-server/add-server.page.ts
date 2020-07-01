@@ -25,7 +25,10 @@ export class AddServerPage implements OnInit {
 
   save() {
     const now = new Date();
-    this.serverData.created = now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
+    const day = now.getDate() < 10 ? '0' + now.getDate() : now.getDate();
+    let month: number | string = (now.getMonth() + 1);
+    month = month < 10 ? '0'+month : month;
+    this.serverData.created = day + '/' + month + '/' + now.getFullYear();
     this.srvSrv.save(this.serverData);
     this.cancel();
   }
