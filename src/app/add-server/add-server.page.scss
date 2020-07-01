@@ -4,3 +4,11 @@ ion-item {
     flex-direction: column;
     justify-content: flex-end;
 }
+
+.editBlock {
+    text-align: center;
+    ion-button {
+        width: 45%;
+        display: inline-block;
+    }
+}

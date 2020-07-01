@@ -1,4 +1,3 @@
-Guardar logs.
 Login con bouncer / nickserv
 Autojoin de canales.
 

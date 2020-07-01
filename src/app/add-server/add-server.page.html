@@ -50,14 +50,16 @@
     </ion-item>
     <ion-button expand="full" (click)="save()" *ngIf="!serverID">Agregar</ion-button>
     <div class="editBlock" *ngIf="serverID">
-      <ion-button (click)="delete()">
+      <ion-button expand="block" color="danger" (click)="delete()">
         <ion-icon slot="start" name="trash-outline"></ion-icon>
         Eliminar
       </ion-button>
-      <ion-button (click)="save()">
+      <ion-button expand="block" (click)="save()">
         <ion-icon slot="start" name="checkmark-outline"></ion-icon>
         Guardar
       </ion-button>
     </div>
   </ion-list>
 </ion-content>
+
+ 
