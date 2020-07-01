@@ -55,6 +55,7 @@ export class ServerCardComponent implements OnInit {
           }).then(toast => {
             toast.present();
           });
+          this.server.connected = false;
         })
       });
       // this.navCtrl.navigateForward('/chat');
