@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hexchat Mobile</string>
+    <string name="title_activity_main">Hexchat Mobile</string>
+    <string name="package_name">com.tandilserver.hexchat</string>
+    <string name="custom_url_scheme">com.tandilserver.hexchat</string>
+</resources>
