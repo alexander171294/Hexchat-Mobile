@@ -161,22 +161,25 @@ export class ConnectionHandlerService {
 
   private loadLog(serverID: string) {
     if(localStorage.getItem('dividedStream')) {
-      if(!localStorage.getItem('dividedStream')[serverID]) {
-        return;
-      }
-      const dividedStream = JSON.parse(localStorage.getItem('dividedStream'))[serverID].dividedStream;
-      Object.entries(dividedStream).forEach(channChats => {
-        const channel = channChats[0];
-        const messages: any = channChats[1];
-        const processedMessages = [];
-        messages.forEach(msg => {
-          msg.time = msg.time;
-          msg.fromLog = true;
-          processedMessages.push(msg);
+      Object.entries(JSON.parse(localStorage.getItem('dividedStream'))).forEach(srv => {
+        const servID: string = srv[0];
+        const divStr: any = srv[1];
+        Object.entries(divStr.dividedStream).forEach(channChats => {
+          const channel = channChats[0];
+          const messages: any = channChats[1];
+          const processedMessages = [];
+          messages.forEach(msg => {
+            msg.time = msg.time;
+            msg.fromLog = true;
+            processedMessages.push(msg);
+          });
+          divStr.dividedStream[channel] = processedMessages;
         });
-        dividedStream[channel] = processedMessages;
+        if(!this.websockets[servID]) {
+          this.websockets[servID] = new WSData();
+        }
+        this.websockets[servID].dividedStream = divStr.dividedStream;
       });
-      this.websockets[serverID].dividedStream = dividedStream;
     }
   }
 
