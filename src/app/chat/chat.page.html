@@ -59,14 +59,14 @@
       
       <li *ngFor="let message of messages" [class.special]="message.special" [class.me]="message.me" [class.log]="message.fromLog">
         <span class="hora" *ngIf="message.time">{{message.time}}</span>
-        <div class="nick">{{message.nick}}</div>
-        <span class="actionNick" *ngIf="message.actionTarget">{{message.actionTarget}}</span>
+        <div class="nick" (click)="autoNick(message.nick)">{{message.nick}}</div>
+        <span class="actionNick" *ngIf="message.actionTarget" (click)="autoNick(message.actionTarget)">{{message.actionTarget}}</span>
         {{message.message}}
       </li>
     </ul>
   </div>
   <div class="inputBox">
-    <ion-searchbar searchIcon="send-outline" placeholder="send message or command" inputmode="" (keypress)="sendCommand($event)"></ion-searchbar>
+    <ion-searchbar #sendInput searchIcon="send-outline" placeholder="send message or command" inputmode="" (keypress)="sendCommand($event)"></ion-searchbar>
   </div>
 
 </ion-content>

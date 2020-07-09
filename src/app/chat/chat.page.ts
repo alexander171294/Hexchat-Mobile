@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild, ElementRef, MissingTranslationStrategy, OnDestroy } from '@angular/core';
-import { MenuController, NavController, IonRouterOutlet, ToastController } from '@ionic/angular';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { MenuController, NavController, IonRouterOutlet, ToastController, IonSearchbar } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { ConnectionHandlerService, WSData, RawMessageEvent, IRCMessage } from '../services/connection-handler.service';
 import { Subscription } from 'rxjs';
@@ -23,6 +23,8 @@ export class ChatPage implements OnInit, OnDestroy {
 
   private errorSubscripiton: Subscription;
   private messageSubscription: Subscription;
+
+  @ViewChild('sendInput') sendInput: IonSearchbar;
 
   constructor(private menu: MenuController,
               private routerOutlet: IonRouterOutlet,
@@ -173,6 +175,13 @@ export class ChatPage implements OnInit, OnDestroy {
       duration: 2000
     });
     toast.present();
+  }
+
+  autoNick(nick: string) {
+    this.sendInput.getInputElement().then(input => {
+      input.value = nick + ', ';
+      input.focus();
+    });
   }
 
 }
