@@ -10,7 +10,7 @@ import { SettingsPage } from '../settings/settings.page';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage {
-  
+
   public servers: ServerData[];
 
   constructor(private modalController: ModalController, 
@@ -18,7 +18,7 @@ export class HomePage {
     this.refreshServers();
     this.srvSrv.onServerChange().subscribe(srv => {
       this.refreshServers();
-    })
+    });
   }
 
   refreshServers() {

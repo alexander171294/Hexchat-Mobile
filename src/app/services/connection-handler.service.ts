@@ -11,12 +11,13 @@ export class ConnectionHandlerService {
 
   public websockets: IWebsockets = {};
   public messageEvent: EventEmitter<RawMessageEvent> = new EventEmitter<RawMessageEvent>();
+  public errorEvent: EventEmitter<void> = new EventEmitter<void>();
 
   constructor(private srvSrv: ServersService) { }
 
   public connect(server: ServerData): Promise<boolean> {
     return new Promise<boolean>((res, rej) => {
-      if(server.connected) {
+      if (server.connected) {
         res();
       } else {
         this.srvSrv.updateStatusConnection(server.id, true);
@@ -24,8 +25,8 @@ export class ConnectionHandlerService {
         this.loadLog(server.id);
         this.websockets[server.id].ws = new WebSocketHDLR();
         this.websockets[server.id].ws.connect(environment.gateway).subscribe(
-          msg => { this.onGetMessage(msg, server); res() },
-          err => { this.onErrorOccoured(err, server); rej(err) },
+          msg => { this.onGetMessage(msg, server); res(); },
+          err => { this.onErrorOccoured(err, server); rej(err); },
           () => {  }
         );
         this.onComplete(server);
@@ -35,74 +36,74 @@ export class ConnectionHandlerService {
 
   private onGetMessage(message: string, server: ServerData) {
     console.log(message);
-    if(message.indexOf('PING') === 0) {
+    if (message.indexOf('PING') === 0) {
       const pingResp = message.slice(5);
       console.log('Sending pong');
-      this.send(server.id,'PONG ' + pingResp);
+      this.send(server.id, 'PONG ' + pingResp);
       return;
     }
-    
+
     IRCParser.parseMessage(message).forEach(parsedMessage => {
       const msg = new IRCMessage();
       let channel = '';
       // 464 bad bouncer connection?
-      if(parsedMessage.code == '353') {
-        const channel = IRCParser.getChannelOfUsers(message);
+      if (parsedMessage.code === '353') {
+        channel = IRCParser.getChannelOfUsers(message);
         const users = parsedMessage.message.trim().split(' ');
         this.websockets[server.id].users[channel] = users;
-      } else if (parsedMessage.code == '433') { // nick already in use
+      } else if (parsedMessage.code === '433') { // nick already in use
         this.send(server.id, 'nick ' + server.apodoSecundario);
-      } else if(parsedMessage.code == '396') { // displayed host
+      } else if (parsedMessage.code === '396') { // displayed host
         // autologin
-        if(server.method === 'nickserv') {
+        if (server.method === 'nickserv') {
           this.send(server.id, 'PRIVMSG nickserv identify ' + server.password);
         }
         // autojoin
-        if(server.autojoin) {
+        if (server.autojoin) {
           const channels = server.autojoin.split(' ');
-          channels.forEach(channel => {
-            console.log('Joining to ' + channel);
-            this.send(server.id, 'JOIN '+channel);
-            this.addChannelMSG(server.id, channel);
+          channels.forEach(joinChannel => {
+            console.log('Joining to ' + joinChannel);
+            this.send(server.id, 'JOIN ' + joinChannel);
+            this.addChannelMSG(server.id, joinChannel);
           });
         }
-      } else if(parsedMessage.code == '464') {
-        if(server.method === 'spassword') {
+      } else if (parsedMessage.code === '464') {
+        if (server.method === 'spassword') {
           this.send(server.id, 'PASS ' + server.username + ':' + server.password);
           this.send(server.id, 'nick ' + server.apodo);
         }
-      } else if(parsedMessage.code == '322') {
+      } else if (parsedMessage.code === '322') {
         // real channel list.
         // const channel = IRCParser.getChannelOfUsers(message);
         // const users = parsedMessage.message.trim().split(' ');
         // this.websockets[server.id].users[channel] = users;
-      } else if(parsedMessage.code == 'PART') {
-        //:Harko!~Harkolandia@harkonidaz.irc.tandilserver.com PART #SniferL4bs :"Leaving"
+      } else if (parsedMessage.code === 'PART') {
+        // :Harko!~Harkolandia@harkonidaz.irc.tandilserver.com PART #SniferL4bs :"Leaving"
         channel = parsedMessage.target;
-        if(!this.websockets[server.id].users[channel]) {
+        if (!this.websockets[server.id].users[channel]) {
           this.websockets[server.id].users[channel] = [];
         }
-        let index = this.websockets[server.id].users[channel].findIndex(user => user === parsedMessage.simplyOrigin);
+        const index = this.websockets[server.id].users[channel].findIndex(user => user === parsedMessage.simplyOrigin);
         delete this.websockets[server.id].users[channel][index];
         msg.special = true;
         msg.message = parsedMessage.simplyOrigin + ' leaving (' + parsedMessage.message + ')';
         msg.nick = '*';
         msg.channel = channel;
         this.addMessage(server.id, msg, channel);
-      } else if(parsedMessage.code == 'JOIN') {
-        //:Harko!~Harkolandia@harkonidaz.irc.tandilserver.com JOIN :#SniferL4bs
+      } else if (parsedMessage.code === 'JOIN') {
+        // :Harko!~Harkolandia@harkonidaz.irc.tandilserver.com JOIN :#SniferL4bs
         console.log('Joining ', parsedMessage);
         channel = parsedMessage.message;
-        if(!this.websockets[server.id].users[channel]) {
+        if (!this.websockets[server.id].users[channel]) {
           this.websockets[server.id].users[channel] = [];
         }
         this.websockets[server.id].users[channel].push(parsedMessage.simplyOrigin);
         msg.special = true;
-        msg.message = parsedMessage.origin.nick + ' ('+parsedMessage.origin.identitity+'@'+parsedMessage.origin.server+') Joining';
+        msg.message = parsedMessage.origin.nick + ' (' + parsedMessage.origin.identitity + '@' + parsedMessage.origin.server + ') Joining';
         msg.nick = '*';
         msg.channel = channel;
         this.addMessage(server.id, msg, channel);
-      } else if(parsedMessage.code != 'PRIVMSG') {
+      } else if (parsedMessage.code !== 'PRIVMSG') {
         msg.special = true;
         msg.message = parsedMessage.message;
         msg.nick = '*';
@@ -114,7 +115,7 @@ export class ConnectionHandlerService {
         msg.date = this.getDateStr();
         if (parsedMessage.target === this.websockets[server.id].server.apodo) { // privado hacia mi
           // TODO: guardar en un chat stream y luego filtrarlo por seleccion
-          channel = '@'+parsedMessage.simplyOrigin;
+          channel = '@' + parsedMessage.simplyOrigin;
           this.addMessage(server.id, msg, channel);
         } else { // de un canal
           channel = parsedMessage.target;
@@ -128,8 +129,8 @@ export class ConnectionHandlerService {
   }
 
   private addMessage(serverID: string, message: IRCMessage, channel?: string): void {
-    if(channel) {
-      if(!this.websockets[serverID].dividedStream[channel]) {
+    if (channel) {
+      if (!this.websockets[serverID].dividedStream[channel]) {
         this.websockets[serverID].dividedStream[channel] = [];
         this.addChannelMSG(serverID, channel);
       }
@@ -151,7 +152,7 @@ export class ConnectionHandlerService {
         const channel = channChats[0];
         const messages = channChats[1];
         chatsOuts[channel] = messages.slice(environment.saveLastMessages < 0 ? environment.saveLastMessages : (-1 * environment.saveLastMessages));
-      })
+      });
       logsOut[serverID] = {
         dividedStream: chatsOuts
       };
@@ -160,7 +161,7 @@ export class ConnectionHandlerService {
   }
 
   private loadLog(serverID: string) {
-    if(localStorage.getItem('dividedStream')) {
+    if (localStorage.getItem('dividedStream')) {
       Object.entries(JSON.parse(localStorage.getItem('dividedStream'))).forEach(srv => {
         const servID: string = srv[0];
         const divStr: any = srv[1];
@@ -175,7 +176,7 @@ export class ConnectionHandlerService {
           });
           divStr.dividedStream[channel] = processedMessages;
         });
-        if(!this.websockets[servID]) {
+        if (!this.websockets[servID]) {
           this.websockets[servID] = new WSData();
         }
         this.websockets[servID].dividedStream = divStr.dividedStream;
@@ -185,19 +186,19 @@ export class ConnectionHandlerService {
 
   private getTime(): string {
     const now = new Date();
-    const hours = now.getHours() < 10 ? '0'+now.getHours() : now.getHours();
-    const min = now.getMinutes() < 10 ? '0'+now.getMinutes() : now.getMinutes();
-    const second = now.getSeconds() < 10 ? '0'+now.getSeconds() : now.getSeconds();
+    const hours = now.getHours() < 10 ? '0' + now.getHours() : now.getHours();
+    const min = now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes();
+    const second = now.getSeconds() < 10 ? '0' + now.getSeconds() : now.getSeconds();
     return hours + ':' + min + ':' + second;
   }
 
   private getDateStr(): string {
     const now = new Date();
-    const month = (now.getMonth()+1);
+    const month = (now.getMonth() + 1);
     const monthStr = month < 10 ? '0' + month : month;
     const day = now.getDate();
-    const dayStr = day < 10 ? '0' + day : day; 
-    return dayStr+'/'+monthStr+'/'+now.getFullYear();
+    const dayStr = day < 10 ? '0' + day : day;
+    return dayStr + '/' + monthStr + '/' + now.getFullYear();
   }
 
   public registerMessageSended(id: string, message: string, channel: string) {
@@ -213,7 +214,7 @@ export class ConnectionHandlerService {
   }
 
   public addChannelMSG(id: string, user: string) {
-    if(this.websockets[id].privMsgChannels.findIndex(channel => channel === user) >= 0) {
+    if (this.websockets[id].privMsgChannels.findIndex(channel => channel === user) >= 0) {
       return;
     }
     this.websockets[id].privMsgChannels.push(user);
@@ -230,6 +231,7 @@ export class ConnectionHandlerService {
   private onErrorOccoured(err: any, server: ServerData) {
     console.error('ERROR DE CONEXION', err);
     this.srvSrv.updateStatusConnection(server.id, false);
+    this.errorEvent.emit();
   }
 
   private onComplete(server: ServerData) {
@@ -255,6 +257,10 @@ export class ConnectionHandlerService {
 
   public onMessageReceived(): EventEmitter<RawMessageEvent> {
     return this.messageEvent;
+  }
+
+  public onError(): EventEmitter<void> {
+    return this.errorEvent;
   }
 
   public getServerNick(id: string): string {
