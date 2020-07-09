@@ -66,6 +66,10 @@ export class ConnectionHandlerService {
         this.websockets[server.id].users[channel] = users;
       } else if (parsedMessage.code === '433') { // nick already in use
         this.send(server.id, 'nick ' + server.apodoSecundario);
+        this.websockets[server.id].actualNick = server.apodoSecundario;
+      } else if (parsedMessage.code === 'NICK') {
+        // nos cambiaron el nick.
+        this.websockets[server.id].actualNick = parsedMessage.target;
       } else if (parsedMessage.code === '396') { // displayed host
         // autologin
         if (server.method === 'nickserv') {
@@ -84,6 +88,7 @@ export class ConnectionHandlerService {
         if (server.method === 'spassword') {
           this.send(server.id, 'PASS ' + server.username + ':' + server.password);
           this.send(server.id, 'nick ' + server.apodo);
+          this.websockets[server.id].actualNick = server.apodo;
         }
       } else if (parsedMessage.code === '322') {
         // real channel list.
@@ -217,7 +222,7 @@ export class ConnectionHandlerService {
   public registerMessageSended(id: string, message: string, channel: string) {
     const msg = new IRCMessage();
     msg.message = message;
-    msg.nick = this.websockets[id].server.apodo;
+    msg.nick = this.websockets[id].actualNick;
     msg.time = this.getTime();
     msg.date = this.getDateStr();
     msg.me = true;
@@ -252,6 +257,7 @@ export class ConnectionHandlerService {
     this.websockets[server.id].ws.send('HOST ' + server.server);
     this.websockets[server.id].ws.send('user ' + server.username + ' * * :HexchatForAndroid');
     this.websockets[server.id].ws.send('nick ' + server.apodo);
+    this.websockets[server.id].actualNick = server.apodo;
     this.websockets[server.id].server = server;
     // this.websockets[server.id].send('/join #underc0de ');
   }
@@ -304,6 +310,7 @@ export class WSData {
   public users: UsersList = {};
   public privMsgChannels: string[] = [];
   public server: ServerData;
+  public actualNick: string;
 }
 
 export interface UsersList {
