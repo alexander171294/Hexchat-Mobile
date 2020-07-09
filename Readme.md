@@ -10,3 +10,22 @@ https://github.com/kiwiirc/webircgateway
 
 correr el gateway:
 ./webircgateway --config=config.conf
+
+## build android
+
+To fix capacitor notifications plugin you nedd to go refactor -> migrate to AndroidX
+
+and change:
+
+from:
+import androidx.core.util.ArraySet;
+
+to
+import androidx.collection.ArraySet;
+
+from:
+import android.support.v4.media.app.NotificationCompat.MediaStyle;
+
+to:
+import androidx.media.app.NotificationCompat.MediaStyle;
+
