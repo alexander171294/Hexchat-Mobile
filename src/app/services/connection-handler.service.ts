@@ -313,6 +313,24 @@ export class ConnectionHandlerService {
   private migrateNick(serverID: string, oldNick: string, newNick: string) {
     const actual = this.websockets[serverID].privMsgChannels.indexOf(oldNick);
     this.websockets[serverID].privMsgChannels.splice(actual, 1, newNick);
+    Object.entries(this.websockets[serverID].users).forEach(u => {
+      u[1].forEach((user, idx) => {
+        const mod = user[0];
+        let moded = false;
+        if (mod === '~' ||
+            mod === '&' ||
+            mod === '@' ||
+            mod === '%' ||
+            mod === '+') {
+            user = user.slice(1);
+            moded = true;
+        }
+        console.log('modify ', user, oldNick, newNick);
+        if (user === oldNick) {
+          u[1][idx] = moded ? mod + newNick : newNick;
+        }
+      });
+    });
   }
 
   public send(id: string, command: string) {
