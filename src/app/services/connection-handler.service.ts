@@ -3,8 +3,6 @@ import { ServerData, ServersService } from './servers.service';
 import { WebSocketHDLR } from './websocket';
 import { environment } from 'src/environments/environment';
 import { IRCParser } from '../utils/IrcParser';
-import { timingSafeEqual } from 'crypto';
-import { parse } from 'path';
 
 @Injectable({
   providedIn: 'root'
