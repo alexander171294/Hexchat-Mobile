@@ -3,6 +3,8 @@ import { ServerData, ServersService } from './servers.service';
 import { WebSocketHDLR } from './websocket';
 import { environment } from 'src/environments/environment';
 import { IRCParser } from '../utils/IrcParser';
+import { timingSafeEqual } from 'crypto';
+import { parse } from 'path';
 
 @Injectable({
   providedIn: 'root'
@@ -60,6 +62,14 @@ export class ConnectionHandlerService {
       const msg = new IRCMessage();
       let channel = '';
       // 464 bad bouncer connection?
+      if (parsedMessage.code === '319') { // lista de canales
+        if (parsedMessage.target === this.websockets[server.id].actualNick) {
+          console.log('Channel list: ', parsedMessage.message);
+          parsedMessage.message.split(' ').forEach(channel => {
+            this.addChannelMSG(server.id, channel);
+          });
+        }
+      }
       if (parsedMessage.code === '353') {
         channel = IRCParser.getChannelOfUsers(message);
         const users = parsedMessage.message.trim().split(' ');
@@ -68,9 +78,16 @@ export class ConnectionHandlerService {
         this.send(server.id, 'nick ' + server.apodoSecundario);
         this.websockets[server.id].actualNick = server.apodoSecundario;
       } else if (parsedMessage.code === 'NICK') {
-        // nos cambiaron el nick.
-        this.websockets[server.id].actualNick = parsedMessage.target;
+        // nos cambiaron el nick o se lo cambió alguien.
+        if (parsedMessage.simplyOrigin === this.websockets[server.id].actualNick) {
+          this.websockets[server.id].actualNick = parsedMessage.target;
+        } else {
+          // se lo cambió alguien:
+          this.migrateNick(server.id, parsedMessage.simplyOrigin, parsedMessage.target);
+        }
       } else if (parsedMessage.code === '396') { // displayed host
+        // check channels:
+        this.send(server.id, 'WHOIS ' + this.websockets[server.id].actualNick);
         // autologin
         if (server.method === 'nickserv') {
           this.send(server.id, 'PRIVMSG nickserv identify ' + server.password);
@@ -250,6 +267,19 @@ export class ConnectionHandlerService {
   }
 
   public addChannelMSG(id: string, user: string) {
+    // ~ founder
+    // & superop
+    // @ op
+    // % halfop
+    // + voice
+    const mod = user[0];
+    if (mod === '~' ||
+        mod === '&' ||
+        mod === '@' ||
+        mod === '%' ||
+        mod === '+') {
+      user = user.slice(1);
+    }
     if (this.websockets[id].privMsgChannels.findIndex(channel => channel === user) >= 0) {
       return;
     }
@@ -278,6 +308,11 @@ export class ConnectionHandlerService {
     this.websockets[server.id].actualNick = server.apodo;
     this.websockets[server.id].server = server;
     // this.websockets[server.id].send('/join #underc0de ');
+  }
+
+  private migrateNick(serverID: string, oldNick: string, newNick: string) {
+    const actual = this.websockets[serverID].privMsgChannels.indexOf(oldNick);
+    this.websockets[serverID].privMsgChannels.splice(actual, 1, newNick);
   }
 
   public send(id: string, command: string) {

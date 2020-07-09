@@ -79,7 +79,19 @@ export class ChatPage implements OnInit, OnDestroy {
   queryUser(user: string) {
     this.menu.close('users');
     let queryFor = user;
-    queryFor = queryFor[0] === '@' ? queryFor.slice(1) : queryFor;
+    // ~ founder
+    // & superop
+    // @ op
+    // % halfop
+    // + voice
+    const mod = queryFor[0];
+    if (mod === '~' ||
+        mod === '&' ||
+        mod === '@' ||
+        mod === '%' ||
+        mod === '+') {
+      queryFor = queryFor.slice(1);
+    }
     this.connHdlr.addChannelMSG(this.serverID, '@' + queryFor);
     this.channelsMenu = this.connHdlr.getChannels(this.serverID);
     this.changeFilter('@' + queryFor);
