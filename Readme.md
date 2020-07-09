@@ -31,3 +31,7 @@ import androidx.media.app.NotificationCompat.MediaStyle;
 
 Para correr solo angular:
 ionic cap run android --prod
+
+## releases:
+
+in playstore: https://play.google.com/store/apps/details?id=com.tandilserver.hexchat
