@@ -63,8 +63,8 @@ export class ConnectionHandlerService {
       if (parsedMessage.code === '319') { // lista de canales
         if (parsedMessage.target === this.websockets[server.id].actualNick) {
           console.log('Channel list: ', parsedMessage.message);
-          parsedMessage.message.split(' ').forEach(channel => {
-            this.addChannelMSG(server.id, channel);
+          parsedMessage.message.split(' ').forEach(pmChnl => {
+            this.addChannelMSG(server.id, pmChnl);
           });
         }
       }
