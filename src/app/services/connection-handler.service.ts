@@ -137,6 +137,10 @@ export class ConnectionHandlerService {
           msg.message = parsedMessage.message;
           msg.nick = parsedMessage.simplyOrigin;
         }
+        // verificar menciones:
+        if (msg.message.indexOf(this.websockets[server.id].actualNick) >= 0) {
+          msg.mention = true;
+        }
         msg.time = this.getTime();
         msg.date = this.getDateStr();
         if (parsedMessage.target === this.websockets[server.id].server.apodo) { // privado hacia mi
@@ -343,6 +347,7 @@ export interface ChatStreams {
 export class IRCMessage {
   public me: boolean;
   public special: boolean;
+  public mention: boolean;
   public actionTarget: string; // for /me command
   public nick: string;
   public message: string;

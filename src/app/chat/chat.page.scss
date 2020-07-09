@@ -60,5 +60,12 @@ ul {
         &.log {
             opacity: 0.7;
         }
+        &.mention {
+            color: var(--ion-color-mention);
+            font-style: italic;
+            .nick {
+                color: var(--ion-color-mention);
+            }
+        }
     }
 }

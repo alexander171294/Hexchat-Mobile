@@ -57,7 +57,7 @@
         Alberto09 se ha marchado (Quit: Connection closed)
       </li> -->
       
-      <li *ngFor="let message of messages" [class.special]="message.special" [class.me]="message.me" [class.log]="message.fromLog">
+      <li *ngFor="let message of messages" [class.special]="message.special" [class.me]="message.me" [class.log]="message.fromLog" [class.mention]="message.mention">
         <span class="hora" *ngIf="message.time">{{message.time}}</span>
         <div class="nick" (click)="autoNick(message.nick)">{{message.nick}}</div>
         <span class="actionNick" *ngIf="message.actionTarget" (click)="autoNick(message.actionTarget)">{{message.actionTarget}}</span>
