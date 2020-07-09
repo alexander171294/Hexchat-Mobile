@@ -173,10 +173,12 @@ export class ConnectionHandlerService {
         }
         msg.time = this.getTime();
         msg.date = this.getDateStr();
+        let isPrivateMessage = false;
         if (parsedMessage.target === this.websockets[server.id].server.apodo) { // privado hacia mi
           // TODO: guardar en un chat stream y luego filtrarlo por seleccion
           channel = '@' + parsedMessage.simplyOrigin;
           this.addMessage(server.id, msg, channel);
+          isPrivateMessage = true;
         } else { // de un canal
           channel = parsedMessage.target;
           this.addMessage(server.id, msg, channel);
@@ -195,10 +197,25 @@ export class ConnectionHandlerService {
                 serverID: server.id,
                 filter: channel
               },
+              smallIcon: 'res://mipmap-mdpi/ic_launcher.png',
               icon: 'https://i.imgur.com/klGzc0d.png'
             }]);
           }
           msg.mention = true;
+        } else if (isPrivateMessage) {
+          if (localStorage.getItem('notifications') === 'yes' && this.inBackground) {
+            this.localNotifications.schedule([{
+              id: 0,
+              title: titleNotification,
+              text: notificationContent,
+              data: {
+                serverID: server.id,
+                filter: channel
+              },
+              smallIcon: 'res://mipmap-mdpi/ic_launcher.png',
+              icon: 'https://i.imgur.com/klGzc0d.png'
+            }]);
+          }
         }
       }
       this.addMessage(server.id, msg);
