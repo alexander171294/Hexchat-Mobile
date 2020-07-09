@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
+import { Event } from '@angular/router';
+import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 
 @Component({
   selector: 'app-settings',
@@ -13,15 +15,25 @@ export class SettingsPage implements OnInit {
   logSize: number;
   notifications: boolean;
 
-  constructor(public modalCtrl: ModalController) { }
+  constructor(public modalCtrl: ModalController, private localNotifications: LocalNotifications) { }
 
   ngOnInit() {
     this.logSize = localStorage.getItem('logSize') ? parseInt(localStorage.getItem('logSize')) : environment.saveLastMessages;
     this.notifications = localStorage.getItem('notifications') === 'yes';
   }
 
-  notificationChange(evt) {
-    console.log(evt);
+  notificationChange(evt: any) {
+    if (this.notifications) {
+      if (!this.localNotifications.hasPermission()) {
+        this.localNotifications.requestPermission().then(permissions => {
+          localStorage.setItem('notifications', permissions ? 'yes' : 'no');
+        });
+      } else {
+        localStorage.setItem('notifications', 'yes');
+      }
+    } else {
+      localStorage.setItem('notifications', 'no');
+    }
   }
 
   changedTheme() {
