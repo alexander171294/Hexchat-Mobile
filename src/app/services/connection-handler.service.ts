@@ -4,6 +4,7 @@ import { WebSocketHDLR } from './websocket';
 import { environment } from 'src/environments/environment';
 import { IRCParser } from '../utils/IrcParser';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
+import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class ConnectionHandlerService {
   public errorEvent: EventEmitter<void> = new EventEmitter<void>();
   public connected: boolean;
 
-  constructor(private srvSrv: ServersService, private backgroundMode: BackgroundMode) { }
+  constructor(private srvSrv: ServersService, private backgroundMode: BackgroundMode, private localNotifications: LocalNotifications) { }
 
   public connect(server: ServerData): Promise<boolean> {
     this.connected = false;
@@ -146,17 +147,16 @@ export class ConnectionHandlerService {
       } else {
         // es mensaje /me ?
         const meMsg = /\x01ACTION ([^\x01]+)\x01/.exec(parsedMessage.message);
+        let notificationContent = '';
         if (meMsg) {
           msg.message = meMsg[1];
           msg.actionTarget = parsedMessage.simplyOrigin;
           msg.nick = '*';
+          notificationContent = msg.actionTarget + ': ' + msg.message;
         } else {
           msg.message = parsedMessage.message;
           msg.nick = parsedMessage.simplyOrigin;
-        }
-        // verificar menciones:
-        if (msg.message.indexOf(this.websockets[server.id].actualNick) >= 0) {
-          msg.mention = true;
+          notificationContent = msg.nick + ': ' + msg.message;
         }
         msg.time = this.getTime();
         msg.date = this.getDateStr();
@@ -168,7 +168,24 @@ export class ConnectionHandlerService {
           channel = parsedMessage.target;
           this.addMessage(server.id, msg, channel);
         }
+        const titleNotification = 'Message from ' + channel;
         msg.channel = channel;
+        // verificar menciones:
+        if (msg.message.indexOf(this.websockets[server.id].actualNick) >= 0) {
+          // notificacion
+          if (localStorage.getItem('notifications') === 'yes') {
+            this.localNotifications.schedule([{
+              id: 0,
+              title: titleNotification,
+              text: notificationContent,
+              data: {
+                serverID: server.id,
+                filter: channel
+              }
+            }]);
+          }
+          msg.mention = true;
+        }
       }
       this.addMessage(server.id, msg);
       this.messageEvent.emit(new RawMessageEvent(server.id, msg, channel));
