@@ -38,8 +38,16 @@ ul {
             border-right: 1px solid gray;
             color: var(--ion-color-secondary);
         }
+        .actionNick {
+            font-weight: bold;
+            color: var(--ion-color-secondary);
+        }
         &.me {
             .nick {
+                color: var(--ion-color-tertiary);
+            }
+            .actionNick {
+                font-weight: bold;
                 color: var(--ion-color-tertiary);
             }
         }

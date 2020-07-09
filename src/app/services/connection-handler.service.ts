@@ -127,8 +127,16 @@ export class ConnectionHandlerService {
         msg.nick = '*';
         // msg.time = this.getTime();
       } else {
-        msg.message = parsedMessage.message;
-        msg.nick = parsedMessage.simplyOrigin;
+        // es mensaje /me ?
+        const meMsg = /\x01ACTION ([^\x01]+)\x01/.exec(parsedMessage.message);
+        if (meMsg) {
+          msg.message = meMsg[1];
+          msg.actionTarget = parsedMessage.simplyOrigin;
+          msg.nick = '*';
+        } else {
+          msg.message = parsedMessage.message;
+          msg.nick = parsedMessage.simplyOrigin;
+        }
         msg.time = this.getTime();
         msg.date = this.getDateStr();
         if (parsedMessage.target === this.websockets[server.id].server.apodo) { // privado hacia mi
@@ -219,10 +227,16 @@ export class ConnectionHandlerService {
     return dayStr + '/' + monthStr + '/' + now.getFullYear();
   }
 
-  public registerMessageSended(id: string, message: string, channel: string) {
+  public registerMessageSended(id: string, message: string, channel: string, specialOrig?: string) {
     const msg = new IRCMessage();
     msg.message = message;
-    msg.nick = this.websockets[id].actualNick;
+    if (!specialOrig) {
+      msg.nick = this.websockets[id].actualNick;
+    } else {
+      msg.nick = '*';
+      msg.actionTarget = this.websockets[id].actualNick;
+      msg.message = msg.message;
+    }
     msg.time = this.getTime();
     msg.date = this.getDateStr();
     msg.me = true;
@@ -329,6 +343,7 @@ export interface ChatStreams {
 export class IRCMessage {
   public me: boolean;
   public special: boolean;
+  public actionTarget: string; // for /me command
   public nick: string;
   public message: string;
   public time: string;

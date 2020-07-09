@@ -129,6 +129,14 @@ export class ChatPage implements OnInit, OnDestroy {
           this.channelsMenu = this.connHdlr.getChannels(this.serverID);
           this.changeFilter(channel);
           this.connHdlr.send(this.serverID, 'JOIN ' + channel);
+        } else if (this.command.toLowerCase().indexOf('/me ') === 0 ) {
+          if (this.filter) {
+            const message = this.command.slice(4);
+            const target = this.filter[0] === '@' ? this.filter.slice(1) : this.filter;
+            this.connHdlr.send(this.serverID,
+                              'PRIVMSG ' + target + ' :' + String.fromCharCode(1) + 'ACTION ' + message + String.fromCharCode(1));
+            this.connHdlr.registerMessageSended(this.serverID, message, this.filter, '*');
+          }
         } else {
           this.connHdlr.send(this.serverID, this.command.slice(1));
         }
