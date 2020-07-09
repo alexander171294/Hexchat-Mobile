@@ -3,20 +3,34 @@ import { ServerData, ServersService } from './servers.service';
 import { WebSocketHDLR } from './websocket';
 import { environment } from 'src/environments/environment';
 import { IRCParser } from '../utils/IrcParser';
-import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConnectionHandlerService {
 
+  private inBackground = false;
+
   public websockets: IWebsockets = {};
   public messageEvent: EventEmitter<RawMessageEvent> = new EventEmitter<RawMessageEvent>();
   public errorEvent: EventEmitter<void> = new EventEmitter<void>();
   public connected: boolean;
 
-  constructor(private srvSrv: ServersService, private backgroundMode: BackgroundMode, private localNotifications: LocalNotifications) { }
+
+  constructor(private srvSrv: ServersService, 
+              private localNotifications: LocalNotifications,
+              backgroundMode: BackgroundMode) {
+    backgroundMode.on('deactivate').subscribe(bg => {
+      console.log('deactivate background');
+      this.inBackground = false;
+    });
+    backgroundMode.on('activate').subscribe(bg => {
+      console.log('activate background');
+      this.inBackground = true;
+    });
+  }
 
   public connect(server: ServerData): Promise<boolean> {
     this.connected = false;
@@ -32,7 +46,6 @@ export class ConnectionHandlerService {
           msg => {
             this.onGetMessage(msg, server);
             if (!this.connected) {
-              this.backgroundMode.enable();
               res();
             }
             this.connected = true;
@@ -173,7 +186,7 @@ export class ConnectionHandlerService {
         // verificar menciones:
         if (msg.message.indexOf(this.websockets[server.id].actualNick) >= 0) {
           // notificacion
-          if (localStorage.getItem('notifications') === 'yes') {
+          if (localStorage.getItem('notifications') === 'yes' && this.inBackground) {
             this.localNotifications.schedule([{
               id: 0,
               title: titleNotification,
@@ -181,7 +194,8 @@ export class ConnectionHandlerService {
               data: {
                 serverID: server.id,
                 filter: channel
-              }
+              },
+              icon: 'https://i.imgur.com/klGzc0d.png'
             }]);
           }
           msg.mention = true;

@@ -29,3 +29,5 @@ import android.support.v4.media.app.NotificationCompat.MediaStyle;
 to:
 import androidx.media.app.NotificationCompat.MediaStyle;
 
+Para correr solo angular:
+ionic cap run android --prod

@@ -4,6 +4,8 @@ import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
+import { ConnectionHandlerService } from './services/connection-handler.service';
 
 
 @Component({
@@ -17,7 +19,8 @@ export class AppComponent {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    private localNotifications: LocalNotifications
+    private localNotifications: LocalNotifications,
+    private backgroundMode: BackgroundMode,
   ) {
     this.initializeApp();
   }
@@ -35,6 +38,7 @@ export class AppComponent {
           });
         }
       }
+      this.backgroundMode.enable();
     });
   }
 }
