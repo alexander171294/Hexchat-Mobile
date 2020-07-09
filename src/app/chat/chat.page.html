@@ -5,12 +5,12 @@
     </ion-buttons>
     <ion-title *ngIf="filter">{{filter}}</ion-title>
     <ion-title *ngIf="!filter">{{serverName}}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="channels()">
-        <ion-icon name="chatbubbles-outline"></ion-icon>
-      </ion-button>
+    <ion-buttons slot="end">+
       <ion-button (click)="users()" *ngIf="isChannel">
         <ion-icon name="people-circle-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="channels()">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
