@@ -11,11 +11,17 @@ export class SettingsPage implements OnInit {
 
   theme: string;
   logSize: number;
+  notifications: boolean;
 
   constructor(public modalCtrl: ModalController) { }
 
   ngOnInit() {
     this.logSize = localStorage.getItem('logSize') ? parseInt(localStorage.getItem('logSize')) : environment.saveLastMessages;
+    this.notifications = localStorage.getItem('notifications') === 'yes';
+  }
+
+  notificationChange(evt) {
+    console.log(evt);
   }
 
   changedTheme() {

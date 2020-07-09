@@ -28,6 +28,10 @@
     <ion-input [value]="logSize" (change)="chgLogSize($event)"></ion-input>
   </ion-item>
   <ion-item>
+    <ion-label position="floating">Notificaciones de menciones</ion-label>
+    <ion-toggle [(ngModel)]="notifications" (change)="notificationChange($event)" slot="end"></ion-toggle>
+  </ion-item>
+  <ion-item>
     <ion-button expand="block" (click)="clearLogs()">Borrar logs</ion-button>
     <ion-button expand="block" (click)="deleteServers()">Borrar servidores</ion-button>
   </ion-item>

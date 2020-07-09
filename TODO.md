@@ -1,2 +1,0 @@
-Background mode
-Pings notifications.
