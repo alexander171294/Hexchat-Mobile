@@ -152,8 +152,10 @@ export class ChatPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.errorSubscripiton.unsubscribe();
-    this.messageSubscription.unsubscribe();
+    if (this.messageSubscription) {
+      this.errorSubscripiton.unsubscribe();
+      this.messageSubscription.unsubscribe();
+    }
   }
 
   async presentToast(message: string) {

@@ -12,10 +12,12 @@ export class ConnectionHandlerService {
   public websockets: IWebsockets = {};
   public messageEvent: EventEmitter<RawMessageEvent> = new EventEmitter<RawMessageEvent>();
   public errorEvent: EventEmitter<void> = new EventEmitter<void>();
+  public connected: boolean;
 
   constructor(private srvSrv: ServersService) { }
 
   public connect(server: ServerData): Promise<boolean> {
+    this.connected = false;
     return new Promise<boolean>((res, rej) => {
       if (server.connected) {
         res();
@@ -25,8 +27,19 @@ export class ConnectionHandlerService {
         this.loadLog(server.id);
         this.websockets[server.id].ws = new WebSocketHDLR();
         this.websockets[server.id].ws.connect(environment.gateway).subscribe(
-          msg => { this.onGetMessage(msg, server); res(); },
-          err => { this.onErrorOccoured(err, server); rej(err); },
+          msg => {
+            this.onGetMessage(msg, server);
+            if (!this.connected) {
+              res();
+            }
+            this.connected = true;
+          },
+          err => {
+            this.onErrorOccoured(err, server);
+            if (!this.connected) {
+              rej(err);
+            }
+          },
           () => {  }
         );
         this.onComplete(server);
