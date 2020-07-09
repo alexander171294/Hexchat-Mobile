@@ -3,6 +3,7 @@ import { ServerData, ServersService } from './servers.service';
 import { WebSocketHDLR } from './websocket';
 import { environment } from 'src/environments/environment';
 import { IRCParser } from '../utils/IrcParser';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class ConnectionHandlerService {
   public errorEvent: EventEmitter<void> = new EventEmitter<void>();
   public connected: boolean;
 
-  constructor(private srvSrv: ServersService) { }
+  constructor(private srvSrv: ServersService, private backgroundMode: BackgroundMode) { }
 
   public connect(server: ServerData): Promise<boolean> {
     this.connected = false;
@@ -30,6 +31,7 @@ export class ConnectionHandlerService {
           msg => {
             this.onGetMessage(msg, server);
             if (!this.connected) {
+              this.backgroundMode.enable();
               res();
             }
             this.connected = true;
